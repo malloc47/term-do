@@ -2,6 +2,7 @@
 #define TERMDO_H_
 
 #include "vt100.h"
+#include "matcher.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -16,20 +17,17 @@ public:
   ~TermDo();
   void setPrompt(string);
   void loopDo();
+  string command;
 
 private:
   void init();
-  int handleChar(char);
   void refreshLine();
-  string wordMatches();
-  void wordAdd(char);
-  void wordRemove();
+  int handleChar(char);
+  string formatMatches(vector<string>,unsigned int);
   string prompt;
-  string word;
-  string command;
-  vector<string> words;
-  vector<string> actions;
-  class VT100 term_control;
+  int match_offset;
+  class VT100 term;
+  class Matcher matcher;
 };
 
 #endif
