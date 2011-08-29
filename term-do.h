@@ -5,18 +5,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <vector>
 
 using namespace std;
 
 class TermDo {
 public:
+  TermDo();
   TermDo(string);
-  void loop_do(VT100);
+  ~TermDo();
   void setPrompt(string);
-  int handle_char(int);
+  void loopDo();
 
 private:
+  void init();
+  int handleChar(char);
+  void refreshLine();
+  string wordMatches();
+  void wordAdd(char);
+  void wordRemove();
   string prompt;
+  string word;
+  string command;
+  vector<string> words;
+  vector<string> actions;
+  class VT100 term_control;
 };
 
 #endif

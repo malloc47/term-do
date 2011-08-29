@@ -5,12 +5,22 @@
 #include <termios.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/ioctl.h>
+
+#define TEXT_NORMAL "\33[0m"
+#define TEXT_BOLD "\33[1m"
 
 class VT100 {
 public:
   VT100();
   ~VT100();
-  void clearLine(void);
+  void operator << (const char *);
+  void clearLine();
+  char getChar();
+  void pushCursor();
+  void popCursor();
+  void printLine(const char *);
+  int getWidth();
 
 private:
   struct termios old_termios;
