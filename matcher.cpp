@@ -1,109 +1,111 @@
 #include "matcher.h"
 
 Matcher::Matcher() {
+  dictionary.push_back("view");
+  dictionary.push_back("open");
+  dictionary.push_back("vim");
+  dictionary.push_back("vimdiff");
+  dictionary.push_back("vimpager");
+  dictionary.push_back("vga-on");
+  dictionary.push_back("vgimport");
+  dictionary.push_back("vi");
+  dictionary.push_back("vncpasswd");
+  dictionary.push_back("vgcfgbackup");
+  dictionary.push_back("vgimportclone");
+  dictionary.push_back("video-dimensions");
+  dictionary.push_back("vimtutor");
+  dictionary.push_back("vncserver");
+  dictionary.push_back("vgcfgrestore");
+  dictionary.push_back("vgmerge");
+  dictionary.push_back("video-length");
+  dictionary.push_back("vipw");
+  dictionary.push_back("vncviewer");
+  dictionary.push_back("vgchange");
+  dictionary.push_back("vgmknodes");
+  dictionary.push_back("video-objects");
+  dictionary.push_back("visualinfo");
+  dictionary.push_back("vpe");
+  dictionary.push_back("vainfo");
+  dictionary.push_back("vgck");
+  dictionary.push_back("vgreduce");
+  dictionary.push_back("video-report");
+  dictionary.push_back("visudo");
+  dictionary.push_back("vpl2ovp");
+  dictionary.push_back("vdir");
+  dictionary.push_back("vgconvert");
+  dictionary.push_back("vgremove");
+  dictionary.push_back("video-server");
+  dictionary.push_back("vlc");
+  dictionary.push_back("vpl2vpl");
+  dictionary.push_back("vedit");
+  dictionary.push_back("vgcreate");
+  dictionary.push_back("vgrename");
+  dictionary.push_back("vlc-wrapper");
+  dictionary.push_back("vptovf");
+  dictionary.push_back("vercmp");
+  dictionary.push_back("vgdisplay");
+  dictionary.push_back("vgs");
+  dictionary.push_back("vigr");
+  dictionary.push_back("vlna");
+  dictionary.push_back("vpxdec");
+  dictionary.push_back("vftovp");
+  dictionary.push_back("vgexport");
+  dictionary.push_back("vgscan");
+  dictionary.push_back("vmstat");
+  dictionary.push_back("vpxenc");
+  dictionary.push_back("vga-off");
+  dictionary.push_back("vgextend");
+  dictionary.push_back("vgsplit");
+  dictionary.push_back("vncconnect");
+  init();
+}
+
+Matcher::Matcher(vector<string> dictionary) {
+  this->dictionary = dictionary;
   init();
 }
 
 void Matcher::init(){
-  word="";
-  command="";
-  actions.push_back("view");
-  actions.push_back("open");
-  actions.push_back("vim");
-  actions.push_back("vimdiff");
-  actions.push_back("vimpager");
-  actions.push_back("vga-on");
-  actions.push_back("vgimport");
-  actions.push_back("vi");
-  actions.push_back("vncpasswd");
-  actions.push_back("vgcfgbackup");
-  actions.push_back("vgimportclone");
-  actions.push_back("video-dimensions");
-  actions.push_back("vimtutor");
-  actions.push_back("vncserver");
-  actions.push_back("vgcfgrestore");
-  actions.push_back("vgmerge");
-  actions.push_back("video-length");
-  actions.push_back("vipw");
-  actions.push_back("vncviewer");
-  actions.push_back("vgchange");
-  actions.push_back("vgmknodes");
-  actions.push_back("video-objects");
-  actions.push_back("visualinfo");
-  actions.push_back("vpe");
-  actions.push_back("vainfo");
-  actions.push_back("vgck");
-  actions.push_back("vgreduce");
-  actions.push_back("video-report");
-  actions.push_back("visudo");
-  actions.push_back("vpl2ovp");
-  actions.push_back("vdir");
-  actions.push_back("vgconvert");
-  actions.push_back("vgremove");
-  actions.push_back("video-server");
-  actions.push_back("vlc");
-  actions.push_back("vpl2vpl");
-  actions.push_back("vedit");
-  actions.push_back("vgcreate");
-  actions.push_back("vgrename");
-  actions.push_back("vlc-wrapper");
-  actions.push_back("vptovf");
-  actions.push_back("vercmp");
-  actions.push_back("vgdisplay");
-  actions.push_back("vgs");
-  actions.push_back("vigr");
-  actions.push_back("vlna");
-  actions.push_back("vpxdec");
-  actions.push_back("vftovp");
-  actions.push_back("vgexport");
-  actions.push_back("vgscan");
-  actions.push_back("vmstat");
-  actions.push_back("vpxenc");
-  actions.push_back("vga-off");
-  actions.push_back("vgextend");
-  actions.push_back("vgsplit");
-  actions.push_back("vncconnect");        
+  query="";
+  history.push(matches(query));
 }
 
-vector<string> Matcher::wordMatches() {
-  vector<string> output;
-  for(unsigned int i=0;i<actions.size();i++)
-    if(actions.at(i).substr(0,word.length()).compare(word) == 0)
-      output.push_back(actions.at(i));
+vector<string> Matcher::getMatches() {
+  return history.top();
+}
 
-  // FIXME: easier to do this without shifting elements around
-  // if(match_offset) {
-  //   unsigned int offset = match_offset % output.size();
-  //   printf("\r\n%d <> %u",match_offset,output.size());
-  //   vector<string>::iterator it;
-  //   for(unsigned int i=0;i<offset; i++) {
-  //     output.push_back(output.front());
-  //     output.erase(output.begin());
-  //   }
-  // }
-  
+// TODO: /much/ better matcher, at least one that prioritizes length
+vector<string> Matcher::matches(string to_match) {
+  vector<string> output;
+  for(unsigned int i=0;i<dictionary.size();i++)
+    if(dictionary.at(i).substr(0,to_match.length()).compare(to_match) == 0)
+      output.push_back(dictionary.at(i));
   return output;
 }
 
-void Matcher::wordAdd(char c) {
+void Matcher::addChar(char c) {
   bool valid_char=false;
-  unsigned int len=word.length()+1;
-  // loop through all possible actions
-  for(unsigned int i=0;i<actions.size();i++)
-    // if candidate is long enough and
-    if(actions.at(i).length() >= len && 
-       // is a valid substring of a possible action
-       actions.at(i).substr(0,len).compare(word+c) == 0)
+  unsigned int len=query.length()+1;
+  // loop through all possible dictionary strings
+  for(unsigned int i=0;i<dictionary.size();i++)
+    // if cnandidate is long enough and
+    if(dictionary.at(i).length() >= len && 
+       // is a valid substring of a possible dictionary string
+       dictionary.at(i).substr(0,len).compare(query+c) == 0)
       valid_char=true;
 
-  // add char to word
+  // add char to query
   if(valid_char)
-    word += c;
+    query += c;
+
+  history.push(matches(query));
 }
 
-void Matcher::wordRemove() {
-  if(word.length()>0)
-    word=word.substr(0,word.length()-1);
+void Matcher::removeChar() {
+  if(query.length()>0) {
+    query=query.substr(0,query.length()-1);
+    history.pop();
+  }
 }
 
-string Matcher::wordCurrent() {return word;}
+string Matcher::getQuery() {return query;}
