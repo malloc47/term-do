@@ -1,57 +1,57 @@
 #include "term-do.h"
 
 TermDo::TermDo() {
-  prompt = "";
+  // prompt = "";
   init();
 }
 
 TermDo::TermDo(string prompt) {
-  this->prompt = prompt;
+  // this->prompt = prompt;
   init();
 }
 
 TermDo::~TermDo() {
-  term.clearLine();
+  view.clearLine();
 }
 
 void TermDo::init(){
-  match_offset=0;
   matcher.setDictionary(verbs.getVerbs());
-  refreshLine();
+  view.setPrompt("/-/");
+  view.refreshLine(matcher.getQuery(),matcher.getMatches(),verbs.getTokens());
 }
 
-string TermDo::formatMatches(vector<string> matches, unsigned int length) {
-  string output = "{";
-  for(unsigned int i=0;i<matches.size();i++) {
-    unsigned int j = ((i+match_offset) % matches.size());
-    if(output.length() + matches.at(j).length() + 1 > length)
-      break;
-    else
-      output = output + (i==0 ? "" : " | ") + 
-	matches.at(j).substr(matcher.getQuery().length());
-  }
-  output = output + "}";
-  return output;
-}
+// string TermDo::formatMatches(vector<string> matches, unsigned int length) {
+//   string output = "{";
+//   for(unsigned int i=0;i<matches.size();i++) {
+//     unsigned int j = ((i+match_offset) % matches.size());
+//     if(output.length() + matches.at(j).length() + 1 > length)
+//       break;
+//     else
+//       output = output + (i==0 ? "" : " | ") + 
+// 	matches.at(j).substr(matcher.getQuery().length());
+//   }
+//   output = output + "}";
+//   return output;
+// }
 
-string TermDo::formatTokens(vector<string> tokens) {
-  string output = "";
-  if(tokens.empty()) return output;
-  for(unsigned int i=0;i<tokens.size();i++)
-    output = output + (i==0 ? "" : " ") + tokens.at(i);;
-  return "[" + output + "] ";
-}
+// string TermDo::formatTokens(vector<string> tokens) {
+//   string output = "";
+//   if(tokens.empty()) return output;
+//   for(unsigned int i=0;i<tokens.size();i++)
+//     output = output + (i==0 ? "" : " ") + tokens.at(i);;
+//   return "[" + output + "] ";
+// }
 
-void TermDo::refreshLine() {
-  term.clearLine();
-  string output = prompt + formatTokens(verbs.getTokens()) + matcher.getQuery();
-  term << output.c_str();
-  term.pushCursor();
-  string matches = formatMatches(matcher.getMatches(),
-				 term.getWidth() - output.length());
-  term << matches.substr(0,term.getWidth() - output.length()).c_str();
-  term.popCursor();
-}
+// void TermDo::refreshLine() {
+//   term.clearLine();
+//   string output = prompt + formatTokens(verbs.getTokens()) + matcher.getQuery();
+//   term << output.c_str();
+//   term.pushCursor();
+//   string matches = formatMatches(matcher.getMatches(),
+// 				 term.getWidth() - output.length());
+//   term << matches.substr(0,term.getWidth() - output.length()).c_str();
+//   term.popCursor();
+// }
 
 int TermDo::handleChar(char c) {
   bool done = false;
@@ -116,15 +116,15 @@ bool TermDo::commitToken() {
   return false;
 }
 
-void TermDo::setPrompt(string prompt) {
-  this->prompt = prompt;
-}
+// void TermDo::setPrompt(string prompt) {
+//   this->prompt = prompt;
+// }
 
 string TermDo::loopDo() {
   int done=0;
   while(!done) {
-    done = handleChar(term.getChar());
-    refreshLine();
+    done = handleChar(view.getChar());
+    view.refreshLine(matcher.getQuery(),matcher.getMatches(),verbs.getTokens());
   }
   return verbs.getVerbs().front();
 }

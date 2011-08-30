@@ -4,6 +4,7 @@
 #include "vt100.h"
 #include "matcher.h"
 #include "verbs.h"
+#include "view.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -16,21 +17,20 @@ public:
   TermDo();
   TermDo(string);
   ~TermDo();
-  void setPrompt(string);
+  // void setPrompt(string);
   bool commitToken();
   string loopDo();
 
 private:
   void init();
-  void refreshLine();
+  // void refreshLine();
   int handleChar(char);
-  string formatMatches(vector<string>,unsigned int);
-  string formatTokens(vector<string>);
-  string prompt;
-  int match_offset;
-  class VT100 term;
+  // string formatMatches(vector<string>,unsigned int);
+  // string formatTokens(vector<string>);
+  // string prompt;
   class Matcher matcher;
   class Verbs verbs;
+  class View view;
 };
 
 #endif
