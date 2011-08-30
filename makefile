@@ -1,21 +1,17 @@
+EXEC = term-do
 CXX = g++
 CCFLAGS = -Wall
+SOURCES = $(wildcard *.cpp)
+OBJECTS = $(SOURCES:.cpp=.o)
 
-all: term-do
+all: $(EXEC)
 
-term-do: vt100.o matcher.o term-do.o
-	$(CXX) vt100.o matcher.o term-do.o $(CCFLAGS) -o term-do
+$(EXEC): $(OBJECTS)
+	$(CXX) $(OBJECTS) $(CCFLAGS) -o $(EXEC)
 
-vt100.o: vt100.cpp vt100.h
-	$(CXX) -c vt100.cpp $(CCFLAGS) -o vt100.o
-
-matcher.o: matcher.cpp matcher.h
-	$(CXX) -c matcher.cpp $(CCFLAGS) -o matcher.o
-
-term-do.o: term-do.cpp term-do.h
-	$(CXX) -c term-do.cpp $(CCFLAGS) -o term-do.o
+%.o: %.cpp
+	$(CXX) -c $(CC_FLAGS) $< -o $@
 
 clean:
-	-rm term-do
-	-rm *.o
+	-rm -f $(EXEC) $(OBJECTS)
 	-rm *~
