@@ -17,8 +17,8 @@ public:
   TermDo(string);
   ~TermDo();
   void setPrompt(string);
-  void loopDo();
-  string command;
+  bool commitToken();
+  string loopDo();
 
 private:
   void init();

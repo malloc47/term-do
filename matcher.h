@@ -6,7 +6,7 @@
 #include <vector>
 #include <stack>
 #include <iostream>
-//#include <algorithm>
+#include <algorithm>
 
 using namespace std;
 

@@ -65,6 +65,10 @@ vector<string> plugin1(vector<string> input) {
     dictionary.push_back("test2");
     dictionary.push_back("test3");
   }
+  else
+    // dictionary.push_back("echo cmd");
+    dictionary.push_back(input.front());
+
   return dictionary;
 }
 
@@ -80,4 +84,3 @@ void Verbs::pop() {
   if(tokens.size() > 0)
     tokens.pop_back();
 }
-

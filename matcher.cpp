@@ -26,6 +26,7 @@ vector<string> Matcher::matches(string to_match) {
       output.push_back(dictionary.at(i));
   if(output.size() < 1)
     output.push_back("");
+  sort(output.begin(),output.end());
   return output;
 }
 
@@ -58,6 +59,7 @@ bool Matcher::removeChar() {
 string Matcher::getQuery() {return query;}
 
 void Matcher::rotateForward() {
+  if(history.top().size()<2) return;
   vector<string> current_matches = history.top();
   history.pop();
   current_matches.push_back(current_matches.front());
@@ -66,6 +68,7 @@ void Matcher::rotateForward() {
 }
 
 void Matcher::rotateBackward() {
+  if(history.top().size()<2) return;
   vector<string> current_matches = history.top();
   history.pop();
   current_matches.insert(current_matches.begin(),current_matches.back());

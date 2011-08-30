@@ -54,6 +54,8 @@ void TermDo::refreshLine() {
 }
 
 int TermDo::handleChar(char c) {
+  bool done = false;
+
   // standard character range
   if(c >= 'a' && c <= 'z')
     matcher.addChar(c);
@@ -65,23 +67,28 @@ int TermDo::handleChar(char c) {
     matcher.addChar(c);
   // C-s
   else if(c==19)
-    match_offset++;
+    matcher.rotateForward();
   // C-r
   else if(c==18) {
-    if(match_offset) 
-      match_offset--;
-    else
-      match_offset=matcher.getMatches().size();
+    matcher.rotateBackward();
+  }
+  // tab
+  else if(c==9) {
+    if(matcher.getMatches().size()==1)
+      done=commitToken();
+    // else if(matcher.getMatches().size() > 1) {
+    //   bool same=true;
+    //   for(int i=0;i<matcher.getMatches().size();i++)
+    // 	if(matcher.getMatches().at(i).substr(matcher.getQuery().size()).empty() ||
+    // 	   ((i>0) && 
+    // 	    matcher.getMatches().at(i).at(matcher.getQuery().size()) != matcher.getMatches().at(i-1).at(matcher.getQuery().size())))
+    // 	  same=false;
+    //   if(same) matcher.addChar(c);
+    // }
   }
   // enter
-  else if(c==13){
-    // FIXME: shouldn't be handling offsets in this object
-    command=matcher.getMatches().at(match_offset % matcher.getMatches().size());
-    if(command.compare("")) {
-      verbs.push(matcher.getMatches().at(match_offset % matcher.getMatches().size()));
-      matcher.setDictionary(verbs.getVerbs());
-    }
-  }
+  else if(c==13)
+    done=commitToken();
   // backspace
   else if(c==127)
     // if matcher out of characters to backspace
@@ -92,32 +99,44 @@ int TermDo::handleChar(char c) {
     }
 
   // C-c , C-d , C-g, Enter
-  return (c==3 || c==4 || c==7);
+  return (c==3 || c==4 || c==7 || done);
+}
+
+bool TermDo::commitToken() {
+  if(!matcher.getMatches().front().compare(""))
+    return false;
+
+  verbs.push(matcher.getMatches().front());
+
+  vector<string> verb = verbs.getVerbs();
+  if(verb.size() < 2)
+    return true;
+
+  matcher.setDictionary(verb);
+  return false;
 }
 
 void TermDo::setPrompt(string prompt) {
   this->prompt = prompt;
 }
 
-void TermDo::loopDo() {
+string TermDo::loopDo() {
   int done=0;
   while(!done) {
     done = handleChar(term.getChar());
     refreshLine();
   }
+  return verbs.getVerbs().front();
 }
 
 int main(int argc, char *argv[]) {
-  // string command;
+  string command;
 
   // like this so TermDo (and subsequently VT100's) destructor is called
   {
     TermDo term_logic("/-/ ");
-    term_logic.loopDo();
-    // command = term_logic.command;
+    command = term_logic.loopDo();
   }
 
-  // system(command.c_str());
-
-  // printf("\r%s\n",command.c_str());
+  system(command.c_str());
 }
