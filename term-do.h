@@ -3,6 +3,7 @@
 
 #include "vt100.h"
 #include "matcher.h"
+#include "verbs.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -24,10 +25,12 @@ private:
   void refreshLine();
   int handleChar(char);
   string formatMatches(vector<string>,unsigned int);
+  string formatTokens(vector<string>);
   string prompt;
   int match_offset;
   class VT100 term;
   class Matcher matcher;
+  class Verbs verbs;
 };
 
 #endif

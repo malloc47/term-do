@@ -13,11 +13,13 @@ using namespace std;
 class Matcher {
 public:
   Matcher();
-  Matcher(vector<string>);
+  void setDictionary(vector<string>);
   void addChar(char);
-  void removeChar();
+  bool removeChar();
   vector<string> getMatches();
   string getQuery();
+  void rotateForward();
+  void rotateBackward();
 
 private:
   void init();

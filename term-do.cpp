@@ -16,6 +16,7 @@ TermDo::~TermDo() {
 
 void TermDo::init(){
   match_offset=0;
+  matcher.setDictionary(verbs.getVerbs());
   refreshLine();
 }
 
@@ -23,18 +24,27 @@ string TermDo::formatMatches(vector<string> matches, unsigned int length) {
   string output = "{";
   for(unsigned int i=0;i<matches.size();i++) {
     unsigned int j = ((i+match_offset) % matches.size());
-    if(output.length() + matches.at(j).length() > length)
+    if(output.length() + matches.at(j).length() + 1 > length)
       break;
     else
-      output = output + (i==0 ? "" : " | ") + matches.at(j);
+      output = output + (i==0 ? "" : " | ") + 
+	matches.at(j).substr(matcher.getQuery().length());
   }
   output = output + "}";
   return output;
 }
 
+string TermDo::formatTokens(vector<string> tokens) {
+  string output = "";
+  if(tokens.empty()) return output;
+  for(unsigned int i=0;i<tokens.size();i++)
+    output = output + (i==0 ? "" : " ") + tokens.at(i);;
+  return "[" + output + "] ";
+}
+
 void TermDo::refreshLine() {
   term.clearLine();
-  string output = prompt + matcher.getQuery();
+  string output = prompt + formatTokens(verbs.getTokens()) + matcher.getQuery();
   term << output.c_str();
   term.pushCursor();
   string matches = formatMatches(matcher.getMatches(),
@@ -64,14 +74,25 @@ int TermDo::handleChar(char c) {
       match_offset=matcher.getMatches().size();
   }
   // enter
-  else if(c==13)
+  else if(c==13){
+    // FIXME: shouldn't be handling offsets in this object
     command=matcher.getMatches().at(match_offset % matcher.getMatches().size());
+    if(command.compare("")) {
+      verbs.push(matcher.getMatches().at(match_offset % matcher.getMatches().size()));
+      matcher.setDictionary(verbs.getVerbs());
+    }
+  }
   // backspace
   else if(c==127)
-    matcher.removeChar();
+    // if matcher out of characters to backspace
+    if(!matcher.removeChar()) {
+      // remove token
+      verbs.pop();
+      matcher.setDictionary(verbs.getVerbs());
+    }
 
   // C-c , C-d , C-g, Enter
-  return (c==3 || c==4 || c==7 || c==13);
+  return (c==3 || c==4 || c==7);
 }
 
 void TermDo::setPrompt(string prompt) {
