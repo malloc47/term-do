@@ -1,6 +1,7 @@
 #ifndef TERMDO_H_
 #define TERMDO_H_
 
+#include "common.h"
 #include "vt100.h"
 #include "matcher.h"
 #include "verbs.h"

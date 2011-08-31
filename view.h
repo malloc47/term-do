@@ -1,6 +1,7 @@
 #ifndef VIEW_H_
 #define VIEW_H_
 
+#include "common.h"
 #include <vector>
 #include <string>
 #include "vt100.h"

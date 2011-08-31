@@ -1,6 +1,7 @@
 #ifndef VERBS_H_
 #define VERBS_H_
 
+#include "common.h"
 #include <dlfcn.h>
 #include <vector>
 #include <string>

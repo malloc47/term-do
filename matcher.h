@@ -1,6 +1,7 @@
 #ifndef MATCHER_H_
 #define MATCHER_H_
 
+#include "common.h"
 #include <stdio.h>
 #include <string>
 #include <vector>
