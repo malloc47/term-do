@@ -1,13 +1,15 @@
 EXEC = term-do
 CXX = g++
 CCFLAGS = -Wall
+LDFLAGS = -ldl
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 all: $(EXEC)
+	cd lib ; make
 
 $(EXEC): $(OBJECTS)
-	$(CXX) $(OBJECTS) $(CCFLAGS) -o $(EXEC)
+	$(CXX) $(LDFLAGS) $(OBJECTS) $(CCFLAGS) -o $(EXEC)
 
 %.o: %.cpp
 	$(CXX) -c $(CC_FLAGS) $< -o $@

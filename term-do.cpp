@@ -4,6 +4,7 @@ TermDo::TermDo() {
   matcher.setDictionary(verbs.getVerbs());
   view.setPrompt("/-/");
   view.refreshLine(matcher.getQuery(),matcher.getMatches(),verbs.getTokens());
+  command="";
 }
 
 TermDo::~TermDo() {
@@ -79,7 +80,8 @@ string TermDo::loopDo() {
     done = handleChar(view.getChar());
     view.refreshLine(matcher.getQuery(),matcher.getMatches(),verbs.getTokens());
   }
-  return verbs.getVerbs().front();
+  // return matcher.getQuery().length() > 0 ? verbs.getVerbs().front() : "";
+  return command;
 }
 
 int main(int argc, char *argv[]) {
@@ -90,6 +92,7 @@ int main(int argc, char *argv[]) {
     TermDo term_logic;
     command = term_logic.loopDo();
   }
-
-  system(command.c_str());
+  
+  if(!command.empty())
+    system(command.c_str());
 }

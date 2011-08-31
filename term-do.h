@@ -24,6 +24,7 @@ private:
   class Matcher matcher;
   class Verbs verbs;
   class View view;
+  string command;
 };
 
 #endif

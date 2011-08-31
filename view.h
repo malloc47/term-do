@@ -18,8 +18,8 @@ public:
 
 private:
   void init();
-  string formatList(vector<string>,string,string,string);
-  string formatList(vector<string>,string,string,string,unsigned int);
+  string formatList(vector<string>,const string,const string,const string);
+  string formatList(vector<string>,const string,const string,const string,const unsigned int);
   vector<string> chopList(vector<string>,unsigned int);
   string prompt;
 };

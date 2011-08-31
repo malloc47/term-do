@@ -18,7 +18,7 @@ vector<string> Matcher::getMatches() {
   return history.top();
 }
 
-// TODO: /much/ better matcher, at least one that prioritizes length
+// TODO: /much/ better matcher (consider ternary search tree)
 vector<string> Matcher::matches(string to_match) {
   vector<string> output;
   for(unsigned int i=0;i<dictionary.size();i++)
