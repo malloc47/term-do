@@ -4,11 +4,14 @@
 #include "common.h"
 #include <dlfcn.h>
 #include <vector>
+#include <stack>
 #include <string>
 #include <stdarg.h>
 #include <stdio.h>
 
 using namespace std;
+
+typedef vector<string> (*list_f) ( vector<string> );
 
 class Verbs {
 public:
@@ -18,10 +21,11 @@ public:
   vector<string> getTokens(void);
   void pop();
   void push(string);
-  void loadLibrary(string);
+  bool loadLibrary(string);
 private:
   vector<string> tokens;
-  vector<void*> handles;
+  vector<list_f> plugins;
+  stack<void*> handles;
 };
 
 #endif
