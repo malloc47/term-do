@@ -17,3 +17,4 @@ $(EXEC): $(OBJECTS)
 clean:
 	-rm -f $(EXEC) $(OBJECTS)
 	-rm *~
+	cd lib ; make clean
