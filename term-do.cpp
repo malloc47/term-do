@@ -67,6 +67,8 @@ bool TermDo::commitToken() {
   verbs.push(matcher.getMatches().front());
 
   vector<string> verb = verbs.getVerbs();
+  if(verb.size() == 1)
+    command=verb.at(0);
   if(verb.size() < 2)
     return true;
 
