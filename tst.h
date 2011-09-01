@@ -32,14 +32,14 @@ public:
   ~TST();
   void insert(string s);
   bool search(string s);
-  vector<string> hammingSearch(string s,unsigned int d);
+  vector<string> hammingSearch(string s,int d);
   void traverse();
 private:
   TSTp root;
   const char *str;
   TSTp insert(TSTp p, string *s, unsigned int pos);
   bool search(TSTp p, string *s, unsigned int pos);
-  void hammingSearch(TSTp p, string *s, unsigned int pos, unsigned int d, vector<string> *output);
+  void hammingSearch(TSTp p, string *s, unsigned int pos, int d, vector<string> *output);
   void traverse(TSTp p);
   TSTptr insertr(TSTptr p, const char *s);
   int rsearch(TSTptr p, const char *s);
