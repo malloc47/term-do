@@ -19,12 +19,10 @@ bool TST::search(string s) {
   TSTp p = root;
   unsigned int pos = 0;
   while(p) {
-    char c = (pos < s.length() ? s[pos] : 0);
-    // printf("%c == %c\n",c,p->val);
+    char c = downcase(pos < s.length() ? s[pos] : 0);
     if(c < p->val)
       p=p->left;
     else if(c == p->val) {
-      // if(s.at(pos+1) == 0)
       if(p->data) return true;
       p=p->middle;
       pos++;
@@ -33,35 +31,83 @@ bool TST::search(string s) {
       p=p->right;
   }
   return false;
-  //return search(root,&s,0);
 }
-bool TST::search(TSTp p, string *s, unsigned int pos) {
+
+bool TST::rsearch(string s) { return rsearch(root,&s,0);}
+bool TST::rsearch(TSTp p,string *s, unsigned int pos) {
   if(!p || s->empty()) return false;
-  char c = s->at(pos);
+  char c = downcase(pos < s->length() ? s->at(pos) : 0);
   if(c < p->val)
-    return search(p->left,s,pos);
+    return rsearch(p->left,s,pos);
   else if(c > p->val)
-    return search(p->right,s,pos);
-  else
-    if(pos==s->size()-1 && p->data)
-      return true;
-  return (pos==s->size()-1 ? 0 :search(p->middle,s,pos+1));
+    return rsearch(p->right,s,pos);
+  else {
+    if(c==0) return true;
+    return rsearch(p->middle,s,pos+1);
+  }
 }
+
+vector<string> TST::prefixSearch(string s) { 
+  vector<string> output;
+  prefixSearch(root,&s,0,&output);
+  return output;
+}
+void TST::prefixSearch(TSTp p,string *s, unsigned int pos, vector<string> *output) {
+  if(!p || s->empty()) return;
+  char c = downcase(pos < s->length() ? s->at(pos) : 0);
+  if(c < p->val)
+    prefixSearch(p->left,s,pos,output);
+  else if(c > p->val)
+    prefixSearch(p->right,s,pos,output);
+  else {
+    // if(c==0) output->push_back(*p->data);
+    if(pos==s->length()-1)
+      sort(p->middle,output);
+    prefixSearch(p->middle,s,pos+1,output);
+  }
+}
+
+// vector<string> TST::prefixSearch(string s) {
+//   vector<string> output;
+//   if(s.empty()) return output;
+//   TSTp p = root;
+//   unsigned int pos = 0;
+//   while(p) {
+//     char c = downcase(pos < s.length() ? s[pos] : 0);
+//     printf("%c==%c\t%d==%d\n",c,p->val,pos,s.length());
+//     if(c < p->val)
+//       p=p->left;
+//     else if(c == p->val && (pos<s.length()-1)) {
+//       p=p->middle;
+//       pos++;
+//     }
+//     else if((pos==s.length()-1) && s[pos+1]==0) {
+//       printf("Here\n");
+//       if(p->middle) {
+// 	sort(p->middle,&output);
+// 	return output;
+//       }
+//     }
+//     else
+//       p=p->right;
+//   }
+//   return output;
+// }
+
 
 vector<string> TST::hammingSearch(string s,int d) {
   vector<string> output;
   hammingSearch(root,&s,0,d,&output);
   return output;
 }
-
 void TST::hammingSearch(TSTp p, string *s, unsigned int pos, int d, vector<string> *output) {
   if(!p || d<0) return;
-  char c = (pos < s->length() ? s->at(pos) : 0);
+  char c = downcase(pos < s->length() ? s->at(pos) : 0);
   if(d>0 || c < p->val)
     hammingSearch(p->left,s,pos,d,output);
-  printf("%c==%c\n",c,p->val);
   if(p->val == 0) {
-    if( s->length()-pos <= d)
+    // if( s->length()-pos <= d)
+    if(pos >= s->length()) // no shorter words
       output->push_back(*p->data);
   }
   else
@@ -73,7 +119,7 @@ void TST::hammingSearch(TSTp p, string *s, unsigned int pos, int d, vector<strin
 void TST::insert(string s) {root = insert(root,&s,0);}
 TSTp TST::insert(TSTp p, string *s, unsigned int pos) {
   if(s->empty()) return p;
-  char c = (pos < s->length() ? s->at(pos) : 0);
+  char c = downcase(pos < s->length() ? s->at(pos) : 0);
   if(!p) p = new TSTNode(c);
   if(c < p->val)
     p->left = insert(p->left,s,pos);
@@ -86,15 +132,19 @@ TSTp TST::insert(TSTp p, string *s, unsigned int pos) {
   return p;
 }
 
-void TST::traverse() {traverse(root);}
-void TST::traverse(TSTp p) {
+vector<string> TST::sort() {
+  vector<string> output;
+  sort(root,&output);
+  return output;
+}
+void TST::sort(TSTp p, vector<string> *output) {
   if (!p) return;
-    traverse(p->left);
-    if (p->val)
-        traverse(p->middle);
-    else
-      printf("%s\n", p->data->c_str());
-    traverse(p->right);
+  sort(p->left,output);
+  if (p->val)
+    sort(p->middle,output);
+  else
+    output->push_back(*p->data);
+  sort(p->right,output);
 }
 
 void TST::cleanup(TSTp p){
@@ -105,6 +155,8 @@ void TST::cleanup(TSTp p){
   delete p;
 }
 
+char TST::downcase(char c) {return c;} //(c>='A' && c<='Z') ? c-('Z'-'z') : c;}
+
 TSTNode::TSTNode(char val) {this->val = val;left=middle=right=0; data=0;}
 TSTNode::~TSTNode() {if(!data) delete data;}
 
@@ -114,29 +166,28 @@ int main(int argc, char *argv[]) {
   // tst.insert("Tes7");
   // tst.insert("0101");
   // tst.insert("0111");
-  tst.insert("best");  
-  tst.insert("Jesus");
-  tst.insert("beste");
-  tst.insert("fest");
-  tst.insert("tent");  
-  tst.insert("test");
-  tst.insert("testy");  
-  tst.insert("text");
-  tst.insert("beet");
-  // tst.insert("Really Really Long, very long string... 47");
-  /*  for(unsigned int i=0;i<100000;i++) {
-    string test = randomStrGen(10);
+  // tst.insert("best");  
+  // tst.insert("beste");
+  // tst.insert("fest");
+  // tst.insert("tent");  
+  // tst.insert("test");
+  // tst.insert("testy");  
+  // tst.insert("text");
+  // tst.insert("beet");
+  // tst.insert("te");
+  // tst.insert("te#");
+
+  tst.insert("Really Really Long, very long string... 47");
+  for(unsigned int i=0;i<500000;i++) {
+    string test = randomStrGen(5);
     tst.insert(test);
     if(!tst.search(test)) printf("AAAAHHHH!!!!");
-    } 
-  */
-  // tst.traverse();
-  printf("%d\n",tst.search("test"));
-  printf("%d\n",tst.search("beste"));
-  printf("%d\n",tst.search("tes"));
-  printf("%d\n",tst.search("beet"));
-  printf("%d\n",tst.search("t"));
-  printf("%d\n",tst.search("testy"));
+  } 
+  // printf("%d\n",tst.search("test"));
+  // printf("%d\n",tst.search("beste"));
+  // printf("%d\n",tst.search("tes"));
+  // printf("%d\n",tst.search("beet"));
+  // printf("%d\n",tst.search("t"));
 
   // printf("%d\n",tst.search("Test"));
   // printf("%d\n",tst.search("T"));
@@ -145,9 +196,30 @@ int main(int argc, char *argv[]) {
   // printf("%d\n",tst.search("Test8"));
   // printf("%d\n",tst.search("Tes71"));
 
-  vector<string> output = tst.hammingSearch("test",2);
-  printf("\n%d\n",output.size());
+  // vector<string> output = tst.hammingSearch("test",2);
+  // printf("\n%d\n",output.size());
+  // for(unsigned int i=0;i<output.size();i++)
+  //     printf("%s\n",output[i].c_str());
+
+  // string line;
+  // ifstream myfile ("/home/malloc47/tmp/downloads/dictwords.txt");
+  // if (myfile.is_open()) {
+  //   while ( myfile.good() ) {
+  //     getline (myfile,line);
+  //     tst.insert(line);
+  //   }
+  //   myfile.close();
+  // }
+
+  // vector<string> output = tst.hammingSearch("abbre",1);
+  // vector<string> output = tst.sort();
+  vector<string> output = tst.prefixSearch("474");
+  // vector<string> output = tst.hammingSearch("ase",1);
+  printf("\n%d\n\n",output.size());
   for(unsigned int i=0;i<output.size();i++)
-      printf("%s\n",output[i].c_str());
+    if(output.at(i).substr(0,3).compare("474") != 0){
+      printf("%s\t%s\t%d\n",output[i].c_str(),output.at(i).substr(0,2).c_str(),output.at(i).substr(0,2).compare("16"));
+    }
+
 
 }

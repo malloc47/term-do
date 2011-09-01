@@ -6,6 +6,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <iostream>
+#include <fstream>
+
 using namespace std;
 
 typedef struct TSTNode *TSTp; 
@@ -20,30 +23,25 @@ public:
 private:
 };
 
-typedef struct tstnode *TSTptr; 
-typedef struct tstnode { 
-   char val; 
-   TSTptr left, middle, right; 
-} TSTnode; 
-
 class TST {
 public:
   TST();
   ~TST();
   void insert(string s);
   bool search(string s);
+  bool rsearch(string s);
+  vector<string> prefixSearch(string s);
   vector<string> hammingSearch(string s,int d);
-  void traverse();
+  vector<string> sort();
 private:
   TSTp root;
-  const char *str;
+  bool rsearch(TSTp p,string *s, unsigned int pos);
   TSTp insert(TSTp p, string *s, unsigned int pos);
-  bool search(TSTp p, string *s, unsigned int pos);
+  void prefixSearch(TSTp p,string *s, unsigned int pos, vector<string> *output);
   void hammingSearch(TSTp p, string *s, unsigned int pos, int d, vector<string> *output);
-  void traverse(TSTp p);
-  TSTptr insertr(TSTptr p, const char *s);
-  int rsearch(TSTptr p, const char *s);
+  void sort(TSTp p,vector<string> *output);
   void cleanup(TSTp p);
+  char downcase(char);
 };
 
 #endif
