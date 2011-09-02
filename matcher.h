@@ -17,9 +17,12 @@ public:
   Matcher();
   ~Matcher();
   void setDictionary(list_t);
+  void addCharRestricted(char);
   void addChar(char);
   bool removeChar();
   list_t getMatches();
+  string getMatch();
+  bool exactMatch();
   string getQuery();
   void rotateForward();
   void rotateBackward();

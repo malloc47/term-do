@@ -4,8 +4,6 @@ Plugins::Plugins() {
   list_t libraries = findLibraries("./lib");
   FOR_l(i,libraries)
       loadLibrary("./lib/" + libraries[i]);
-  list_t input;
-  list_t test = plugins[0](input);
 }
 
 Plugins::~Plugins() {
@@ -21,7 +19,10 @@ list_t Plugins::findLibraries(string dirname) {
   list_t output;
   struct dirent *entry;
   DIR* dirp = opendir(dirname.c_str());
-  if(dirp==NULL) printf("Invalid plugin directory\n");
+  if(dirp==NULL) {
+    printf("Invalid plugin directory\n");
+    return output;
+  }
   while ((entry = readdir(dirp)) != NULL) {
     string name(entry->d_name);
     if(name.size() > 3 && name.compare(name.size()-3,3,".so") == 0)
@@ -38,25 +39,54 @@ bool Plugins::loadLibrary(string library) {
     printf( "Failed to open library: %s\n",dlerror());
     return false;
   }
-  dlerror();
 
-  list_f list  = (list_f) dlsym(dyn_handle, "list");
-  const char *error = dlerror();
-  if (error) {
-    printf( "Failed to load symbol list: %s\n",error);
+  dlerror();
+  list_f list_function  = (list_f) dlsym(dyn_handle, "list");
+  if (dlerror()) {
+    printf("Failed to load \"list\" symbol");
+    dlclose(dyn_handle);
+    return false;
+  }
+
+  dlerror();
+  insert_f insert_function  = (insert_f) dlsym(dyn_handle, "insert");
+  if (dlerror()) {
+    printf("Failed to load \"insert\" symbol");
+    dlclose(dyn_handle);
+    return false;
+  }
+
+  dlerror();
+  type_f type_function  = (type_f) dlsym(dyn_handle, "type");
+  if (dlerror()) {
+    printf("Failed to load \"type\" symbol");
+    dlclose(dyn_handle);
+    return false;
+  }
+
+  dlerror();
+  cmd_f cmd_function  = (cmd_f) dlsym(dyn_handle, "cmd");
+  if (dlerror()) {
+    printf("Failed to load \"cmd\" symbol");
     dlclose(dyn_handle);
     return false;
   }
   
-  plugins.push_back(list);
+  list_functions.push_back(list_function);
+  insert_functions.push_back(insert_function);
+  type_functions.push_back(type_function);
+  cmd_functions.push_back(cmd_function);
   handles.push(dyn_handle);
   return true;
 }
 
 void Plugins::getDictionary(Matcher* matcher) {
-  list_t dict = plugins[0](tokens);  
-  FOR_l(i,dict)
-    matcher->insert(dict[i]);
+  FOR_l(i,list_functions) {
+    list_t dict = list_functions[0]();  
+    if(!dict.empty())
+      FOR_l(j,dict)
+	matcher->insert(dict[j]);
+  }
 }
 
 bool Plugins::unambiguousCommand() {
@@ -64,13 +94,19 @@ bool Plugins::unambiguousCommand() {
 }
 
 string Plugins::getCommand() {
-  if(tokens.empty()) return "";
-  else return tokens.front();
+  return cmd_functions[0]();
+  // if(tokens.empty()) return "";
+  // else return tokens.front();
 }
 
 list_t Plugins::getTokens() {return tokens;}
 
-void Plugins::push(string token) {tokens.push_back(token);}
+void Plugins::push(string token) {
+  tokens.push_back(token);
+  FOR_l(i,insert_functions) {
+    insert_functions[i](token);
+  }
+}
 
 void Plugins::pop() {
   if(tokens.size() > 0)

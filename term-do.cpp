@@ -38,17 +38,8 @@ int TermDo::handleChar(char c) {
   }
   // tab
   else if(c==9) {
-    if(matcher->getMatches().size()==1)
-      done=commitToken();
-    // else if(matcher->getMatches().size() > 1) {
-    //   bool same=true;
-    //   for(int i=0;i<matcher->getMatches().size();i++)
-    // 	if(matcher->getMatches().at(i).substr(matcher->getQuery().size()).empty() ||
-    // 	   ((i>0) && 
-    // 	    matcher->getMatches().at(i).at(matcher->getQuery().size()) != matcher->getMatches().at(i-1).at(matcher->getQuery().size())))
-    // 	  same=false;
-    //   if(same) matcher->addChar(c);
-    // }
+    if(matcher->getMatches().size()==1 || matcher->exactMatch())
+      commitToken();
   }
   // enter
   else if(c==13)
@@ -62,23 +53,23 @@ int TermDo::handleChar(char c) {
       cleanup();
       init();
     }
-
-  // C-c , C-d , C-g, Enter
+  
+  // C-c , C-d , C-g, or time to quit
   return (c==3 || c==4 || c==7 || done);
 }
 
 bool TermDo::commitToken() {
-  if(!matcher->getMatches().front().compare(""))
+  string match = matcher->getMatch();
+
+  if(match.empty())
     return false;
 
-  plugins.push(matcher->getMatches().front());
+  plugins.push(match);
 
-  if(plugins.unambiguousCommand())
-    return true;
-
+  // get a new matcher
   cleanup();
   init();
-  return false;
+  return true;
 }
 
 string TermDo::loopDo() {

@@ -2,33 +2,60 @@
 
 Matcher::Matcher() {
   query="";
-  // history.push(matches(query));
 }
 
 Matcher::~Matcher() {}
-
+// The output of this can turn into segfault city if you're not careful
+// Oh why can't we have the typesafe haven of Haskell's Maybe monad...
 list_t Matcher::getMatches() {
-  if(history.empty()) history.push(matches(query));
+  if(history.empty()) {
+    list_t candidates = matches(query);
+    if(!candidates.empty())
+      history.push(candidates);
+    else {
+      return candidates; // An empty vector output
+    }
+  }
   return history.top();
 }
 
+string Matcher::getMatch() {
+  if(history.empty())
+    return query;
+
+  if(history.top().empty())
+    return query;
+
+  if(!history.top().front().compare(""))
+    return query;
+
+  return history.top().front();
+}
+
+bool Matcher::exactMatch() {
+  return search(query);
+}
+
 list_t Matcher::matches(string to_match) {
-  // list_t output;
-  // for(unsigned int i=0;i<dictionary.size();i++)
-  //   if(dictionary.at(i).substr(0,to_match.length()).compare(to_match) == 0)
-  //     output.push_back(dictionary.at(i));
-  // if(output.size() < 1)
-  //   output.push_back("");
-  // std::sort(output.begin(),output.end());
-  // return output;
-  list_t matched = searchPrefix(to_match);
-  if(history.empty()) history.push(matched);
+  list_t matched_prefix = searchPrefix(to_match);
+  // list_t matched_hamming = searchHamming(to_match,2);
+  list_t matched = matched_prefix;
+  // matched.reserve(matched_prefix.size() + matched_hamming.size());
+  // matched.insert(matched.end(),matched_prefix.begin(),matched_prefix.end());
+  // matched.insert(matched.end(),matched_hamming.begin(),matched_hamming.end());
+  // std::sort(matched.begin(),matched.end() );
+  // matched.erase(unique(matched.begin(),matched.end()),matched.end());
   return matched;
 }
 
-void Matcher::addChar(char c) {
+void Matcher::addCharRestricted(char c) {
   if(containsPrefix(query+c))
     query += c;
+  history.push(matches(query));
+}
+
+void Matcher::addChar(char c) {
+  query += c;
   history.push(matches(query));
 }
 

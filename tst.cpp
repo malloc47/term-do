@@ -132,7 +132,7 @@ void TST::cleanup(TSTp p){
   delete p;
 }
 
-char TST::downcase(char c) {return c;} //(c>='A' && c<='Z') ? c-('Z'-'z') : c;}
+char TST::downcase(char c) {return (c>='A' && c<='Z') ? c-('Z'-'z') : c;}
 
 TSTNode::TSTNode(char val) {this->val = val;left=middle=right=0; data=0;}
 TSTNode::~TSTNode() {if(!data) delete data;}

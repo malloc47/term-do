@@ -25,9 +25,16 @@ string View::formatList(list_t list, const string d1, const string sep, const st
   return d1 + output + d2;
 }
 
-list_t View::chopList(list_t list, unsigned int length) {
-  FOR_l(i,list)
-    list.at(i) = list.at(i).substr(length);
+list_t View::chopList(list_t list, const string prefix) {
+  if(list.empty()) return list;
+  FOR_l(i,list) {
+    string item = list[i];
+    // normal chop
+    if(!item.compare(0,prefix.length(),prefix))
+      list.at(i) = item.substr(prefix.length());
+    else
+      list.at(i) = "["+item+"]";
+  }
   return list;
 }
 
@@ -37,7 +44,7 @@ void View::refreshLine(string query, list_t matches, list_t tokens) {
   *this << output.c_str();
   pushCursor();
   string match_str = formatList(chopList(matches,
-					 query.length()),
+					 query),
 				"{"," | ","}",
 				getWidth() - output.length());  
   *this << match_str.substr(0,getWidth() - output.length()).c_str();

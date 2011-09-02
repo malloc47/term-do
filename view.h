@@ -21,7 +21,7 @@ private:
   void init();
   string formatList(list_t,const string,const string,const string);
   string formatList(list_t,const string,const string,const string,const unsigned int);
-  list_t chopList(list_t,unsigned int);
+  list_t chopList(list_t,const string);
   string prompt;
 };
 
