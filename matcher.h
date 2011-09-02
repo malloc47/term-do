@@ -2,6 +2,7 @@
 #define MATCHER_H_
 
 #include "common.h"
+#include "tst.h"
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -11,23 +12,23 @@
 
 using namespace std;
 
-class Matcher {
+class Matcher : public TST{
 public:
   Matcher();
-  void setDictionary(vector<string>);
+  ~Matcher();
+  void setDictionary(list_t);
   void addChar(char);
   bool removeChar();
-  vector<string> getMatches();
+  list_t getMatches();
   string getQuery();
   void rotateForward();
   void rotateBackward();
 
 private:
-  void init();
-  vector<string> matches(string);
+  list_t matches(string);
   string query;
-  vector<string> dictionary;
-  stack< vector<string> > history;
+  list_t dictionary;
+  stack< list_t > history;
 };
 
 #endif

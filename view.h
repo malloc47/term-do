@@ -6,7 +6,7 @@
 #include <string>
 #include "vt100.h"
 #include "matcher.h"
-#include "verbs.h"
+#include "plugins.h"
 
 using namespace std;
 
@@ -15,13 +15,13 @@ public:
   View();
   ~View();
   void setPrompt(string);
-  void refreshLine(string,vector<string>,vector<string>);
+  void refreshLine(string,list_t,list_t);
 
 private:
   void init();
-  string formatList(vector<string>,const string,const string,const string);
-  string formatList(vector<string>,const string,const string,const string,const unsigned int);
-  vector<string> chopList(vector<string>,unsigned int);
+  string formatList(list_t,const string,const string,const string);
+  string formatList(list_t,const string,const string,const string,const unsigned int);
+  list_t chopList(list_t,unsigned int);
   string prompt;
 };
 

@@ -1,5 +1,8 @@
 #include <vector>
 #include <string>
+#include <dirent.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -9,6 +12,7 @@ extern "C" {
 
 vector<string> list(vector<string> input) {
   vector<string> dictionary;
+
   if(input.empty()) {
     dictionary.push_back("view");
     dictionary.push_back("open");

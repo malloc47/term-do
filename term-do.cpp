@@ -1,14 +1,20 @@
 #include "term-do.h"
 
 TermDo::TermDo() {
-  matcher.setDictionary(verbs.getVerbs());
   view.setPrompt("/-/");
-  view.refreshLine(matcher.getQuery(),matcher.getMatches(),verbs.getTokens());
-  command="";
+  init();
 }
 
-TermDo::~TermDo() {
-  view.clearLine();
+TermDo::~TermDo() {view.clearLine(); cleanup();}
+
+void TermDo::init() {
+  matcher = new Matcher();
+  plugins.getDictionary(matcher);
+  view.refreshLine(matcher->getQuery(),matcher->getMatches(),plugins.getTokens());
+}
+
+void TermDo::cleanup() {
+  delete matcher;
 }
 
 int TermDo::handleChar(char c) {
@@ -16,32 +22,32 @@ int TermDo::handleChar(char c) {
 
   // standard character range
   if(c >= 'a' && c <= 'z')
-    matcher.addChar(c);
+    matcher->addChar(c);
   // downcase "automatically"
   else if(c >= 'A' && c <= 'Z')
-    matcher.addChar(c-('Z'-'z'));
+    matcher->addChar(c-('Z'-'z'));
   // allow other valid characters
   else if( c >= ' ' && c <= '~')
-    matcher.addChar(c);
+    matcher->addChar(c);
   // C-s
   else if(c==19)
-    matcher.rotateForward();
+    matcher->rotateForward();
   // C-r
   else if(c==18) {
-    matcher.rotateBackward();
+    matcher->rotateBackward();
   }
   // tab
   else if(c==9) {
-    if(matcher.getMatches().size()==1)
+    if(matcher->getMatches().size()==1)
       done=commitToken();
-    // else if(matcher.getMatches().size() > 1) {
+    // else if(matcher->getMatches().size() > 1) {
     //   bool same=true;
-    //   for(int i=0;i<matcher.getMatches().size();i++)
-    // 	if(matcher.getMatches().at(i).substr(matcher.getQuery().size()).empty() ||
+    //   for(int i=0;i<matcher->getMatches().size();i++)
+    // 	if(matcher->getMatches().at(i).substr(matcher->getQuery().size()).empty() ||
     // 	   ((i>0) && 
-    // 	    matcher.getMatches().at(i).at(matcher.getQuery().size()) != matcher.getMatches().at(i-1).at(matcher.getQuery().size())))
+    // 	    matcher->getMatches().at(i).at(matcher->getQuery().size()) != matcher->getMatches().at(i-1).at(matcher->getQuery().size())))
     // 	  same=false;
-    //   if(same) matcher.addChar(c);
+    //   if(same) matcher->addChar(c);
     // }
   }
   // enter
@@ -50,10 +56,11 @@ int TermDo::handleChar(char c) {
   // backspace
   else if(c==127)
     // if matcher out of characters to backspace
-    if(!matcher.removeChar()) {
+    if(!matcher->removeChar()) {
       // remove token
-      verbs.pop();
-      matcher.setDictionary(verbs.getVerbs());
+      plugins.pop();
+      cleanup();
+      init();
     }
 
   // C-c , C-d , C-g, Enter
@@ -61,18 +68,16 @@ int TermDo::handleChar(char c) {
 }
 
 bool TermDo::commitToken() {
-  if(!matcher.getMatches().front().compare(""))
+  if(!matcher->getMatches().front().compare(""))
     return false;
 
-  verbs.push(matcher.getMatches().front());
+  plugins.push(matcher->getMatches().front());
 
-  vector<string> verb = verbs.getVerbs();
-  if(verb.size() == 1)
-    command=verb.at(0);
-  if(verb.size() < 2)
+  if(plugins.unambiguousCommand())
     return true;
 
-  matcher.setDictionary(verb);
+  cleanup();
+  init();
   return false;
 }
 
@@ -80,10 +85,10 @@ string TermDo::loopDo() {
   int done=0;
   while(!done) {
     done = handleChar(view.getChar());
-    view.refreshLine(matcher.getQuery(),matcher.getMatches(),verbs.getTokens());
+    view.refreshLine(matcher->getQuery(),matcher->getMatches(),plugins.getTokens());
   }
-  // return matcher.getQuery().length() > 0 ? verbs.getVerbs().front() : "";
-  return command;
+  // return matcher->getQuery().length() > 0 ? plugins.getDictionary().front() : "";
+  return plugins.getCommand();
 }
 
 int main(int argc, char *argv[]) {

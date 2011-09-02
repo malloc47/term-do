@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <fstream>
+#include "common.h"
 
 using namespace std;
 
@@ -29,17 +30,19 @@ public:
   ~TST();
   void insert(string s);
   bool search(string s);
-  bool rsearch(string s);
-  vector<string> prefixSearch(string s);
-  vector<string> hammingSearch(string s,int d);
-  vector<string> sort();
+  bool searchRecursive(string s);
+  list_t searchPrefix(string s);
+  bool containsPrefix(string s);
+  list_t searchHamming(string s,int d);
+  list_t sort();
 private:
   TSTp root;
-  bool rsearch(TSTp p,string *s, unsigned int pos);
+  bool searchRecursive(TSTp p,string *s, unsigned int pos);
   TSTp insert(TSTp p, string *s, unsigned int pos);
-  void prefixSearch(TSTp p,string *s, unsigned int pos, vector<string> *output);
-  void hammingSearch(TSTp p, string *s, unsigned int pos, int d, vector<string> *output);
-  void sort(TSTp p,vector<string> *output);
+  void searchPrefix(TSTp p,string *s, unsigned int pos, list_t *output);
+  bool containsPrefix(TSTp p,string *s, unsigned int pos);
+  void searchHamming(TSTp p, string *s, unsigned int pos, int d, list_t *output);
+  void sort(TSTp p,list_t *output);
   void cleanup(TSTp p);
   char downcase(char);
 };

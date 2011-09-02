@@ -4,7 +4,7 @@
 #include "common.h"
 #include "vt100.h"
 #include "matcher.h"
-#include "verbs.h"
+#include "plugins.h"
 #include "view.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,11 +21,13 @@ public:
   string loopDo();
 
 private:
+  void init();
+  void cleanup();
   int handleChar(char);
-  class Matcher matcher;
-  class Verbs verbs;
+  //  class Matcher matcher;
+  Matcher *matcher;
+  class Plugins plugins;
   class View view;
-  string command;
 };
 
 #endif
