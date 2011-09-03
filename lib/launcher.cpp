@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/stat.h>
-
 #include "../common.h"
 
 using namespace std;

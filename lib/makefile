@@ -1,6 +1,6 @@
-EXEC = file.so
+EXEC = launcher.so
 CXX = g++
-CCFLAGS = -Wall -fPIC
+CCFLAGS = -Wall -fPIC -g -ggdb
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
