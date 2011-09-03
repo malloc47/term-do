@@ -38,10 +38,15 @@ bool Matcher::exactMatch() {
 
 list_t Matcher::matches(string to_match) {
   list_t matched_prefix = searchPrefix(to_match);
+  // list_t matched_prefix_2 = searchPrefix("-"+to_match);
+  // list_t matched_prefix_3 = searchPrefix("--"+to_match);
   // list_t matched_hamming = searchHamming(to_match,2);
   list_t matched = matched_prefix;
-  // matched.reserve(matched_prefix.size() + matched_hamming.size());
+  // matched.reserve(matched_prefix.size() + matched_prefix_2.size() + matched_prefix_3.size());
   // matched.insert(matched.end(),matched_prefix.begin(),matched_prefix.end());
+  // matched.insert(matched.end(),matched_prefix_2.begin(),matched_prefix_2.end());
+  // matched.insert(matched.end(),matched_prefix_3.begin(),matched_prefix_3.end());
+
   // matched.insert(matched.end(),matched_hamming.begin(),matched_hamming.end());
   // std::sort(matched.begin(),matched.end() );
   // matched.erase(unique(matched.begin(),matched.end()),matched.end());
