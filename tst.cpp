@@ -45,8 +45,6 @@ list_t TST::searchPrefix(string s) {
 void TST::searchPrefix(TSTp p,string *s, unsigned int pos, list_t *output) {
   if(!p || s->empty()) return;
   char c = downcase(pos < s->length() ? s->at(pos) : 0);
-  if(p->val=='-' && c!='-')
-    searchPrefix(p->middle,s,pos,output);
   if(c < p->val)
     searchPrefix(p->left,s,pos,output);
   else if(c > p->val)
