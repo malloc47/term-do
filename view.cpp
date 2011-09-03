@@ -9,7 +9,7 @@ string View::formatList(list_t list, const string d1, const string sep, const st
   string output = "";
   if(list.empty()) return output;
   FOR_l(i,list)
-    output = output + (i==0 ? "" : sep) + list.at(i);;
+    output = output + (i==0 || list[i-1][list[i-1].size()-1]=='/' ? "" : sep) + list.at(i);;
   return d1 + output + d2;
 }
 

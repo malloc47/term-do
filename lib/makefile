@@ -1,13 +1,13 @@
-EXEC = launcher.so
 CXX = g++
-CCFLAGS = -Wall -fPIC -g -ggdb
+CCFLAGS = -Wall -fPIC # -g -ggdb
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
+EXEC = $(SOURCES:.cpp=.so)
 
 all: $(EXEC)
 
 %.so: %.o
-	$(CXX) $(OBJECTS) $(CCFLAGS) -shared -Wl,-soname,$@ -o $@
+	$(CXX) $< $(CCFLAGS) -shared -Wl,-soname,$@ -o $@
 
 %.o: %.cpp
 	$(CXX) -c $(CCFLAGS) $< -o $@

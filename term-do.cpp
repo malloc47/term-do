@@ -26,6 +26,11 @@ int TermDo::handleChar(char c) {
   // downcase "automatically"
   else if(c >= 'A' && c <= 'Z')
     matcher->addChar(c-('Z'-'z'));
+  // make slash act like a tab, for ido-like behavior
+  else if(c == '/') {
+    matcher->addChar(c);
+    if(matcher->exactMatch()) commitToken();
+  }
   // allow other valid characters
   else if( c > ' ' && c <= '~')
     matcher->addChar(c);
@@ -37,10 +42,12 @@ int TermDo::handleChar(char c) {
     matcher->rotateBackward();
   }
   // tab or space
-  else if(c==9 || c==32) {
+  else if(c==9) {
     if(matcher->getMatches().size()<=1 || matcher->exactMatch())
       commitToken();
   }
+  else if(c==32)
+    commitToken();
   // enter
   else if(c==13)
     done=commitToken();
@@ -63,6 +70,9 @@ bool TermDo::commitToken() {
 
   if(match.empty())
     return false;
+
+  if(matcher->getQuery().empty())
+    return true;
 
   plugins.push(match);
 
@@ -92,4 +102,5 @@ int main(int argc, char *argv[]) {
   
   if(!command.empty())
     system(command.c_str());
+  printf(("\r" + command + "\n").c_str());
 }

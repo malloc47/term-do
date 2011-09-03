@@ -81,9 +81,10 @@ bool Plugins::unambiguousCommand() {
 }
 
 string Plugins::getCommand() {
-  return plugins[0].cmd();
-  // if(tokens.empty()) return "";
-  // else return tokens.front();
+  FOR_l(i,plugins)
+    if(!plugins[i].cmd().empty())
+      return plugins[i].cmd();
+    return "";
 }
 
 list_t Plugins::getTokens() {return tokens;}

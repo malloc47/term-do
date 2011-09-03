@@ -57,7 +57,7 @@ list_t list() {
     return dictionary;
   }
   else {
-    if(!tokens.at(0).compare("vim")) {
+    if(!tokens.at(0).compare("vim") && tokens[tokens.size()-1][tokens[tokens.size()-1].size()-1] != '/') {
       list_t params;
       params.push_back("--");
       params.push_back("-v");
@@ -110,7 +110,7 @@ list_t list() {
 string cmd() {
   string output = "";
   FOR_l(i,tokens)
-    output = output + (i?" ":"") + tokens[i];
+    output = output + (i? (tokens[i-1][tokens[i-1].size()-1]=='/' ? "" : " ") :"") + tokens[i];
   return output;
 }
 
