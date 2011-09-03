@@ -27,7 +27,7 @@ int TermDo::handleChar(char c) {
   else if(c >= 'A' && c <= 'Z')
     matcher->addChar(c-('Z'-'z'));
   // allow other valid characters
-  else if( c >= ' ' && c <= '~')
+  else if( c > ' ' && c <= '~')
     matcher->addChar(c);
   // C-s
   else if(c==19)
@@ -36,9 +36,9 @@ int TermDo::handleChar(char c) {
   else if(c==18) {
     matcher->rotateBackward();
   }
-  // tab
-  else if(c==9) {
-    if(matcher->getMatches().size()==1 || matcher->exactMatch())
+  // tab or space
+  else if(c==9 || c==32) {
+    if(matcher->getMatches().size()<=1 || matcher->exactMatch())
       commitToken();
   }
   // enter
@@ -78,7 +78,6 @@ string TermDo::loopDo() {
     done = handleChar(view.getChar());
     view.refreshLine(matcher->getQuery(),matcher->getMatches(),plugins.getTokens());
   }
-  // return matcher->getQuery().length() > 0 ? plugins.getDictionary().front() : "";
   return plugins.getCommand();
 }
 

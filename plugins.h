@@ -27,11 +27,7 @@ public:
   list_t findLibraries(string);
 private:
   list_t tokens;
-  vector<list_f> list_functions;
-  vector<insert_f> insert_functions;
-  vector<type_f> type_functions;
-  vector<cmd_f> cmd_functions;
-  stack<void*> handles;
+  vector<plugin_t> plugins;
 };
 
 #endif

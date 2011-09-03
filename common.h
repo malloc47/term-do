@@ -10,9 +10,15 @@ typedef vector<string> list_t;
 typedef vector<string> *list_p;
 
 typedef list_t (*list_f) ();
-typedef bool (*insert_f) (string );
-typedef int (*type_f) ();
+typedef void (*update_f) (list_t);
 typedef string (*cmd_f) ();
+
+typedef struct {
+  list_f list;
+  update_f update;
+  cmd_f cmd;
+  void *handle;
+} plugin_t;
 
 #define TYPE_NOMATCH 0;
 #define TYPE_FIXED 1;
