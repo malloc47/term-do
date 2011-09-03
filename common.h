@@ -29,7 +29,6 @@ typedef struct {
 #define FLATTEN_l(l,s) \
   for(unsigned int flatten_var=0; flatten_var<(l).size(); flatten_var++) \
     s=s + (flatten_var ? " " : "") + (l)[flatten_var];
-
 #define CONTAINS_l(l,s)					\
   (std::find((l).begin(), (l).end(),(s)) != (l).end())
 
