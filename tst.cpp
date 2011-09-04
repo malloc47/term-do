@@ -50,7 +50,6 @@ void TST::searchPrefix(TSTp p,string *s, unsigned int pos, list_t *output) {
   else if(c > p->val)
     searchPrefix(p->right,s,pos,output);
   else {
-    // if(c==0) output->push_back(*p->data);
     if(pos==s->length()-1)
       sort(p->middle,output);
     searchPrefix(p->middle,s,pos+1,output);
