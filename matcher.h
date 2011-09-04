@@ -31,6 +31,9 @@ private:
   list_t matches(string);
   string query;
   list_t dictionary;
+  // for better or worse, matches are buffered in the history stack,
+  // which is a space for time tradeoff that reduce number of search
+  // operatons when backspacing characters
   stack< list_t > history;
 };
 
