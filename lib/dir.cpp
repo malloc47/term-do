@@ -78,6 +78,8 @@ list_t base_list() {
 extern "C" {
 #endif
 
+void init() {}
+
 void update(list_t new_tokens) {tokens = new_tokens;}
 
 list_t list() {

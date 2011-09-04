@@ -29,6 +29,8 @@ list_t splitString(const string s, char delim) {
 extern "C" {
 #endif
 
+void init() {}
+
 void update(list_t new_tokens) {tokens = new_tokens;}
 
 list_t list() {
