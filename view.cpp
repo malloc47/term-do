@@ -18,8 +18,11 @@ string View::formatList(list_t list, const string d1, const string sep, const st
   if(list.empty()) return output;
   if(list.size()==1 && list.front().size()==0) return output;
   FOR_l(i,list)
-    if(output.length() + list.at(i).length() + 1 > length)
+    if(output.length() + list.at(i).length() + sep.length()*2 +
+       d2.length()*2 + string("...").length() > length) {
+      output = output + sep + "... ";
       break;
+    }
     else
       output = output + (i==0 ? "" : sep) + list.at(i);;
   return d1 + output + d2;
@@ -40,7 +43,11 @@ list_t View::chopList(list_t list, const string prefix) {
 
 void View::refreshLine(string query, list_t matches, list_t tokens) {
   clearLine();
-  string output = prompt + formatList(tokens,"["," ","]") + " " + query;
+  string output = formatList(tokens,"["," ","]") + " ";
+  unsigned int len = getWidth()*2/3;
+  if(output.length() > len)
+    output = "[ ... " + output.substr(output.length()-len,len-1);
+  output = prompt + output + " " + query;
   *this << output.c_str();
   pushCursor();
   string match_str = formatList(chopList(matches,
