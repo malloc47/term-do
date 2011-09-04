@@ -63,6 +63,16 @@ bool Plugins::loadLibrary(string library) {
     return false;
   }
 
+  dlerror();
+  plugin.init  = (init_f) dlsym(plugin.handle, "init");
+  if (dlerror()) {
+    printf("Failed to load \"init\" symbol");
+    dlclose(plugin.handle);
+    return false;
+  }
+
+  plugin.init();
+
   plugins.push_back(plugin);
   return true;
 }

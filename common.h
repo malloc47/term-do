@@ -12,11 +12,13 @@ typedef vector<string> *list_p;
 typedef list_t (*list_f) ();
 typedef void (*update_f) (list_t);
 typedef string (*cmd_f) ();
+typedef void (*init_f) ();
 
 typedef struct {
   list_f list;
   update_f update;
   cmd_f cmd;
+  init_f init;
   void *handle;
 } plugin_t;
 
