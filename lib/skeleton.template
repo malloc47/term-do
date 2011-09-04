@@ -1,0 +1,35 @@
+#include <vector>
+#include <string>
+#include <stack>
+#include <algorithm>
+#include <sstream>
+#include <dirent.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include "../common.h"
+
+using namespace std;
+
+list_t tokens;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void init();
+
+void update(list_t new_tokens) {tokens = new_tokens;}
+
+list_t list() {
+  return list_t();
+}
+
+string cmd() {
+  return "";
+}
+
+#ifdef __cplusplus
+}
+#endif
