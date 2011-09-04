@@ -32,17 +32,18 @@ list_t Plugins::findLibraries(string dirname) {
 bool Plugins::loadLibrary(string library) {
 
   plugin_t plugin;  
+  // printf("\r%s\n\n",library.c_str());
 
   plugin.handle = dlopen(library.c_str(), RTLD_LAZY);
   if (!plugin.handle) {
-    printf( "Failed to open library: %s\n",dlerror());
+    printf( "\rFailed to open library: %s\n",dlerror());
     return false;
   }
 
   dlerror();
   plugin.list  = (list_f) dlsym(plugin.handle, "list");
   if (dlerror()) {
-    printf("Failed to load \"list\" symbol");
+    printf("\rFailed to load \"list\" symbol");
     dlclose(plugin.handle);
     return false;
   }
@@ -50,7 +51,7 @@ bool Plugins::loadLibrary(string library) {
   dlerror();
   plugin.update  = (update_f) dlsym(plugin.handle, "update");
   if (dlerror()) {
-    printf("Failed to load \"update\" symbol");
+    printf("\rFailed to load \"update\" symbol");
     dlclose(plugin.handle);
     return false;
   }
@@ -58,7 +59,7 @@ bool Plugins::loadLibrary(string library) {
   dlerror();
   plugin.cmd  = (cmd_f) dlsym(plugin.handle, "cmd");
   if (dlerror()) {
-    printf("Failed to load \"cmd\" symbol");
+    printf("\rFailed to load \"cmd\" symbol");
     dlclose(plugin.handle);
     return false;
   }
@@ -66,7 +67,7 @@ bool Plugins::loadLibrary(string library) {
   dlerror();
   plugin.init  = (init_f) dlsym(plugin.handle, "init");
   if (dlerror()) {
-    printf("Failed to load \"init\" symbol");
+    printf("\rfailed to load \"init\" symbol");
     dlclose(plugin.handle);
     return false;
   }
