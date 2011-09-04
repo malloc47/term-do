@@ -41,16 +41,20 @@ int TermDo::handleChar(char c) {
   else if(c==18) {
     matcher->rotateBackward();
   }
-  // tab or space
+  // tab
   else if(c==9) {
-    if(matcher->getMatches().size()<=1 || matcher->exactMatch())
-      commitToken();
+    //if(matcher->getMatches().size()<=1 || matcher->exactMatch())
+      commitValidToken();
   }
-  else if(c==32)
+  // space
+  else if(c==' ') // (c==32)
     commitToken();
   // enter
-  else if(c==13)
-    done=commitToken();
+  else if(c==13) {
+    if(matcher->getMatches().size()<=1 || matcher->exactMatch())
+      done=commitValidToken();
+    done = (!matcher->getQuery().empty() || plugins.getTokens().size() > 0);
+  }
   // backspace
   else if(c==127)
     // if matcher out of characters to backspace
@@ -65,16 +69,28 @@ int TermDo::handleChar(char c) {
   return (c==3 || c==4 || c==7 || done);
 }
 
-bool TermDo::commitToken() {
+bool TermDo::commitValidToken() {
   string match = matcher->getMatch();
 
   if(match.empty())
     return false;
 
-  if(matcher->getQuery().empty())
-    return true;
+  // if(matcher->getQuery().empty())
+  //   return true;
 
   plugins.push(match);
+
+  // get a new matcher
+  cleanup();
+  init();
+  return true;
+}
+
+bool TermDo::commitToken() {
+  if(matcher->getQuery().empty())
+    return false;
+
+  plugins.push(matcher->getQuery());
 
   // get a new matcher
   cleanup();

@@ -17,13 +17,14 @@ class TermDo {
 public:
   TermDo();
   ~TermDo();
-  bool commitToken();
   string loopDo();
 
 private:
   void init();
   void cleanup();
   int handleChar(char);
+  bool commitValidToken();
+  bool commitToken();
   //  class Matcher matcher;
   Matcher *matcher;
   class Plugins plugins;
