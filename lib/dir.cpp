@@ -45,6 +45,7 @@ list_t ls_d(string path) {
   closedir(dirp);
   if(path.compare("/"))
      output.push_back("../");
+  output.push_back("./");
   return output;
 }
 
@@ -59,6 +60,23 @@ list_t ls_f(string path) {
     struct stat st;
     if(stat((path+"/"+name).c_str(),&st)) continue;
     if(S_ISREG(st.st_mode))
+      output.push_back(string(file->d_name));
+  }
+  closedir(dirp);
+  return output;
+}
+
+list_t ls_fe(string path) {
+  list_t output;
+  DIR* dirp = opendir(path.c_str());
+  struct dirent *file;
+  if(dirp==NULL)
+    return list_t();
+  while ((file = readdir(dirp)) != NULL) {
+    string name(file->d_name);
+    struct stat st;
+    if(stat((path+"/"+name).c_str(),&st)) continue;
+    if(S_ISREG(st.st_mode) && access((path+"/"+name).c_str(),X_OK) == 0)
       output.push_back(string(file->d_name));
   }
   closedir(dirp);
@@ -103,9 +121,8 @@ list_t list() {
     //   and setting "start" to be its index
     unsigned int start = tokens.size()-1;
     for(;start>0;start--)
-      if(!isdir(tokens[start-1])) {
+      if(!isdir(tokens[start-1]))
     	break;
-      }
 
     // now walk from the starting directory token (e.g. second/) to
     // the latest token, concatenating the directories
@@ -114,7 +131,10 @@ list_t list() {
 
     // get both a directory and file listing
     list_t dir = ls_d(listing);
-    list_t files = ls_f(listing);
+    // it's not remotely legitimate to blanketly assume that ./ is
+    // going to be used solely for exec-able scripts...
+    list_t files = (!tokens[start].compare("./")) ? ls_fe(listing) : ls_f(listing);
+    
     // concatenate the two listings
     CONCAT2_l(dir,files,output);
     return output;
@@ -122,8 +142,18 @@ list_t list() {
   return list_t();
 }
 
-// helper plugin--no need to return a complete command
+// helper plugins should generally not complete commands, but a useful
+// utility function is to change directories if there isn't any other
+// possible course of action (and its highly unlikey for this to
+// confict with any other plugins)
 string cmd() {
+  // string output = "";
+  // FOR_l(i,tokens)
+  //   output = output + tokens[i];
+  // printf("\r\n%s is %d\n",output.c_str(),valid_dir(output));
+  // return valid_dir(output) ? "cd " + output : "";
+
+  //stupid me: cd-ing in child process buys us nothing, so don't bother
   return "";
 }
 
