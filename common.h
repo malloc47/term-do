@@ -41,4 +41,9 @@ typedef struct {
   (v).insert((v).end(),(p).begin(),(p).end());	\
   (v).insert((v).end(),(q).begin(),(q).end());
 
+inline bool is_dir(string input) {
+  if(input.empty()) return false;
+  return input[input.size()-1]=='/';
+}  
+
 #endif
