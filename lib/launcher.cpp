@@ -34,34 +34,33 @@ extern "C" {
 #endif
 
 void init() {
+  list_t paths = splitString(string(getenv("PATH")),':');
 
+  FOR_l(i,paths) {
+    DIR* dirp = opendir(paths[i].c_str());
+    struct dirent *entry;
+    struct stat st;
+    if(dirp==NULL) {
+      // printf("\rInvalid directory on $PATH: %s\n",paths[i].c_str());
+      continue;
+    }
+    while ((entry = readdir(dirp)) != NULL) {
+      string name(entry->d_name);
+      if(stat((paths[i]+"/"+name).c_str(),&st)) continue;
+      if(S_ISREG(st.st_mode) && access((paths[i]+"/"+name).c_str(),X_OK) == 0)
+	dictionary.push_back(name);
+    }
+    closedir(dirp);
+  }
 }
 
 void update(list_t new_tokens) {tokens = new_tokens;}
 
 list_t list() {
-  if(tokens.empty()) {
-    // don't bother recomputing executable files
-    if(!dictionary.empty()) return dictionary;
-
-    list_t paths = splitString(string(getenv("PATH")),':');
-
-    FOR_l(i,paths) {
-      DIR* dirp = opendir(paths[i].c_str());
-      struct dirent *entry;
-      struct stat st;
-      if(dirp==NULL) {
-	// printf("\rInvalid directory on $PATH: %s\n",paths[i].c_str());
-	continue;
-      }
-      while ((entry = readdir(dirp)) != NULL) {
-	string name(entry->d_name);
-	if(stat((paths[i]+"/"+name).c_str(),&st)) continue;
-	if(S_ISREG(st.st_mode) && access((paths[i]+"/"+name).c_str(),X_OK) == 0)
-	  dictionary.push_back(name);
-      }
-      closedir(dirp);
-    }
+  // return +x files on $PATH if no command has been typed yet, or if
+  // its a command that takes other commands (e.g. watch)
+  if(tokens.empty() || (!tokens[0].compare("time") || 
+			!tokens[0].compare("watch"))) {
     return dictionary;
   }
   else {
@@ -117,14 +116,10 @@ list_t list() {
 
 string cmd() {
   // recognize only exec-able commands 
-  if((!tokens.empty() && is_cmd(tokens[0])) ) { // || 
-     // (tokens.size() > 1 && (!tokens[0].compare("time") ||
-     // 			    !tokens[0]lcompare("watch")) &&
-     //  is_cmd(tokens[1]))) {
+  if((!tokens.empty() && is_cmd(tokens[0])) ) {
     string output = "";
     // glob together tokens
     FOR_l(i,tokens)
-      // output = output + (i? (tokens[i-1][tokens[i-1].size()-1]=='/' ? "" : " ") :"") + tokens[i];
       output = output + (i? (is_dir(tokens[i-1]) ? "" : " ") :"") + tokens[i];
     return output;
   }
