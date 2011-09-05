@@ -27,7 +27,7 @@ private:
   bool commitToken();
   //  class Matcher matcher;
   Matcher *matcher;
-  class Plugins plugins;
+  Plugins *plugins;
   class View view;
 };
 

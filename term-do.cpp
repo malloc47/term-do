@@ -1,16 +1,23 @@
 #include "term-do.h"
 
+//list_t load_plugins
+
 TermDo::TermDo() {
   view.setPrompt("/-/");
+  plugins = new Plugins();
   init();
 }
 
-TermDo::~TermDo() {view.clearLine(); cleanup();}
+TermDo::~TermDo() {
+  view.clearLine(); 
+  delete plugins;
+  cleanup();
+}
 
 void TermDo::init() {
   matcher = new Matcher();
-  plugins.getDictionary(matcher);
-  view.refreshLine(matcher->getQuery(),matcher->getMatches(),plugins.getTokens());
+  plugins->getDictionary(matcher);
+  view.refreshLine(matcher->getQuery(),matcher->getMatches(),plugins->getTokens());
 }
 
 void TermDo::cleanup() {
@@ -53,14 +60,14 @@ int TermDo::handleChar(char c) {
   else if(c==13) {
     if(matcher->getMatches().size()<=1 || matcher->exactMatch())
       done=commitValidToken();
-    done = (!matcher->getQuery().empty() || plugins.getTokens().size() > 0);
+    done = (!matcher->getQuery().empty() || plugins->getTokens().size() > 0);
   }
   // backspace
   else if(c==127)
     // if matcher out of characters to backspace
     if(!matcher->removeChar()) {
       // remove token
-      plugins.pop();
+      plugins->pop();
       cleanup();
       init();
     }
@@ -78,7 +85,7 @@ bool TermDo::commitValidToken() {
   // if(matcher->getQuery().empty())
   //   return true;
 
-  plugins.push(match);
+  plugins->push(match);
 
   // get a new matcher
   cleanup();
@@ -90,7 +97,7 @@ bool TermDo::commitToken() {
   if(matcher->getQuery().empty())
     return false;
 
-  plugins.push(matcher->getQuery());
+  plugins->push(matcher->getQuery());
 
   // get a new matcher
   cleanup();
@@ -102,15 +109,27 @@ string TermDo::loopDo() {
   int done=0;
   while(!done) {
     done = handleChar(view.getChar());
-    view.refreshLine(matcher->getQuery(),matcher->getMatches(),plugins.getTokens());
+    view.refreshLine(matcher->getQuery(),matcher->getMatches(),plugins->getTokens());
   }
-  return plugins.getCommand();
+
+  // assume a terminal-executable command if no match is found--useful
+  // for when something nontrivial using the dir.so plugin is entered
+  string cmd = plugins->getCommand();
+  if(cmd.empty()) {
+    list_t list = plugins->getTokens();
+    string output ="";
+      FOR_l(i,list)
+	output = output + (i==0 || is_dir(list[i-1]) ? "" : " ") + list.at(i);
+    return output;
+  }
+  else
+    return cmd;
 }
 
 int main(int argc, char *argv[]) {
   string command;
 
-  // like this so TermDo (and subsequently VT100's) destructor is called
+  // like this so TermDo's destructor is called
   {
     TermDo term_logic;
     command = term_logic.loopDo();
@@ -118,5 +137,4 @@ int main(int argc, char *argv[]) {
   
   if(!command.empty())
     system(command.c_str());
-  printf(("\r" + command + "\n").c_str());
 }
