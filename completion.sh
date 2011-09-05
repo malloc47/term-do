@@ -14,8 +14,8 @@ if [ -z "${COMP_WORDS[0]}" ] ; then
     exit
 fi
 USE_FUNC=true;
-FUNC=$(complete -p | grep "\b${COMP_WORDS[0]}\b" | grep -o "\-F [^ ]*" | awk '{print $2}')
-# FUNC=_ssh
+# FUNC=$(complete -p | grep "\b${COMP_WORDS[0]}\b" | grep -o "\-F [^ ]*" | awk '{print $2}')
+FUNC=$2
 if [ -z "$FUNC" -o -z "${COMP_WORDS[0]}" ] ; then
     USE_FUNC=false;
 fi
@@ -28,8 +28,10 @@ if [ $USE_FUNC == true ] ; then
     $FUNC
     __completions
 else
-    LAST=${COMP_WORDS[ $(( $COMP_CWORD -1 ))]}
-    echo $(compgen -abc "$LAST" )
+    if [ "${#COMP_WORDS}" == "1"  ] ; then
+	LAST=${COMP_WORDS[ $(( $COMP_CWORD -1 ))]}
+	echo $(compgen -abc "$LAST" )
+    fi
 fi
 
 #redo for switches

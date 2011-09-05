@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include <stack>
+#include <map>
 #include <algorithm>
 #include <sstream>
 #include <dirent.h>
@@ -13,19 +14,37 @@
 using namespace std;
 
 list_t tokens;
+map<string,string> lookup;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void init() {}
+void init() {
+  FILE *fpipe;
+  char buffer[256];
+
+  if ( !(fpipe = (FILE*)popen(string("./comp-func.sh").c_str(),"r")) ) {  
+    printf("\rProblems with pipe\n");
+    return;
+  }
+  while (fgets(buffer, sizeof buffer, fpipe)) {
+    string line = string(buffer);
+    unsigned int split;
+    line.erase(remove(line.begin(), line.end(), '\n'), line.end());
+    split = line.find(",");
+    lookup.insert( pair<string,string>(line.substr(0,split),line.substr(split+1)) );  
+  }
+  pclose(fpipe);
+}
 
 void update(list_t new_tokens) {tokens = new_tokens;}
 
 list_t list() {
 
-  if(tokens.empty())
-    return list_t();
+  if(tokens.empty()) return list_t();
+
+  if(!lookup.count(tokens[0])) return list_t();
 
   list_t output;
 
@@ -33,7 +52,7 @@ list_t list() {
 
   FOR_l(i,tokens)
     command = command + (i?(tokens[i-1][tokens[i-1].size()-1]=='/' ? "" : " "):"") + tokens[i];
-  command = command + "\"";
+  command = command + "\" \"" + lookup.find(tokens[0])->second + "\"" ;
 
   FILE *fpipe;
   char buffer[256];
