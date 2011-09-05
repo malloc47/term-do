@@ -92,10 +92,13 @@ bool Plugins::unambiguousCommand() {
 }
 
 string Plugins::getCommand() {
-  FOR_l(i,plugins)
-    if(!plugins[i].cmd().empty())
-      return plugins[i].cmd();
-    return "";
+  // TODO: handle collisions
+  FOR_l(i,plugins) {
+    string cmd = plugins[i].cmd();
+    if(!cmd.empty())
+      return cmd;
+  }
+  return "";
 }
 
 list_t Plugins::getTokens() {return tokens;}
