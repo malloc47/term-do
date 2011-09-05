@@ -18,7 +18,7 @@ list_t tokens;
 extern "C" {
 #endif
 
-void init() {system("./completion.sh &");}
+void init() {}
 
 void update(list_t new_tokens) {tokens = new_tokens;}
 
@@ -29,18 +29,16 @@ list_t list() {
 
   list_t output;
 
-  // string command = "./completion.sh \"";
-  string command = "echo \"";
+  string command = "./completion.sh \"";
 
   FOR_l(i,tokens)
     command = command + (i?(tokens[i-1][tokens[i-1].size()-1]=='/' ? "" : " "):"") + tokens[i];
-  command = command + "\\ \" > comp-in &";
+  command = command + "\"";
 
   FILE *fpipe;
   char buffer[256];
 
-  system(command.c_str());
-  if ( !(fpipe = (FILE*)popen("./completion-reader.sh","r")) ) {  
+  if ( !(fpipe = (FILE*)popen(command.c_str(),"r")) ) {  
       printf("\rProblems with pipe\n");
       return list_t();
   }
