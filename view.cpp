@@ -47,7 +47,7 @@ void View::refreshLine(string query, list_t matches, list_t tokens) {
   unsigned int len = getWidth()*2/3;
   if(output.length() > len)
     output = "[ ... " + output.substr(output.length()-len,len-1);
-  output = prompt + output + " " + query;
+  output = prompt + output + query;
   *this << output.c_str();
   pushCursor();
   string match_str = formatList(chopList(matches,
