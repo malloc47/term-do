@@ -21,6 +21,7 @@ public:
   void rotateForward();
   void rotateBackward();
   string getQuery();
+  string getCommand();
   list_t getMatches();
   list_t getTokens();
 

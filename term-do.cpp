@@ -4,27 +4,13 @@ list_t load_plugins;
 
 TermDo::TermDo() {
   view.setPrompt("/-/");
-  if(load_plugins.empty())
-    plugins = new Plugins();
-  else
-    plugins = new Plugins(load_plugins);
-  init();
+  server = new Server(load_plugins);
+  view.refreshLine(server->getQuery(),server->getMatches(),server->getTokens());
 }
 
 TermDo::~TermDo() {
   view.clearLine(); 
-  delete plugins;
-  cleanup();
-}
-
-void TermDo::init() {
-  matcher = new Matcher();
-  plugins->getDictionary(matcher);
-  view.refreshLine(matcher->getQuery(),matcher->getMatches(),plugins->getTokens());
-}
-
-void TermDo::cleanup() {
-  delete matcher;
+  delete server;
 }
 
 int TermDo::handleChar(char c) {
@@ -32,92 +18,54 @@ int TermDo::handleChar(char c) {
 
   // standard character range
   if(c >= 'a' && c <= 'z')
-    matcher->addChar(c);
+    server->addChar(c);
   // downcase "automatically"
   else if(c >= 'A' && c <= 'Z')
-    matcher->addChar(c);
+    server->addChar(c);
     // matcher->addChar(c-('Z'-'z'));
   // make slash act like a tab, for ido-like behavior
-  else if(c == '/') {
-    matcher->addChar(c);
-    if(matcher->exactMatch()) commitToken();
-  }
+  else if(c == '/')
+    server->addChar(c);
   // allow other valid characters
   else if( c > ' ' && c <= '~')
-    matcher->addChar(c);
+    server->addChar(c);
   // C-s
   else if(c==19)
-    matcher->rotateForward();
+    server->rotateForward();
   // C-r
   else if(c==18) {
-    matcher->rotateBackward();
+    server->rotateBackward();
   }
   // tab
-  else if(c==9) {
-    //if(matcher->getMatches().size()<=1 || matcher->exactMatch())
-      commitValidToken();
-  }
+  else if(c==9)
+      server->commitValidToken();
   // space
   else if(c==' ') // (c==32)
-    commitToken();
+    server->commitToken();
   // enter
-  else if(c==13) {
-    if(matcher->getMatches().size()<=1 || matcher->exactMatch())
-      done=commitValidToken();
-    done = (!matcher->getQuery().empty() || plugins->getTokens().size() > 0);
-  }
+  else if(c==13) 
+    done = server->commitFinalToken();
   // backspace
   else if(c==127)
     // if matcher out of characters to backspace
-    if(!matcher->removeChar()) {
-      // remove token
-      plugins->pop();
-      cleanup();
-      init();
-    }
+    server->removeChar();
   
   // C-c , C-d , C-g, or time to quit
   return (c==3 || c==4 || c==7 || done);
-}
-
-bool TermDo::commitValidToken() {
-  string match = matcher->getMatch();
-
-  if(match.empty())
-    return false;
-
-  plugins->push(match);
-
-  // get a new matcher
-  cleanup();
-  init();
-  return true;
-}
-
-bool TermDo::commitToken() {
-  if(matcher->getQuery().empty())
-    return false;
-
-  plugins->push(matcher->getQuery());
-
-  // get a new matcher
-  cleanup();
-  init();
-  return true;
 }
 
 string TermDo::loopDo() {
   int done=0;
   while(!done) {
     done = handleChar(view.getChar());
-    view.refreshLine(matcher->getQuery(),matcher->getMatches(),plugins->getTokens());
+    view.refreshLine(server->getQuery(),server->getMatches(),server->getTokens());
   }
 
   // assume a terminal-executable command if no match is found--useful
   // for when something nontrivial using the dir.so plugin is entered
-  string cmd = plugins->getCommand();
+  string cmd = server->getCommand();
   if(cmd.empty()) {
-    list_t list = plugins->getTokens();
+    list_t list = server->getTokens();
     string output ="";
       FOR_l(i,list)
 	output = output + (i==0 || is_dir(list[i-1]) ? "" : " ") + list.at(i);

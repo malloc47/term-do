@@ -28,11 +28,8 @@ private:
   int handleChar(char);
   bool commitValidToken();
   bool commitToken();
-  //  class Matcher matcher;
-  Matcher *matcher;
-  Plugins *plugins;
   class View view;
-  // class Server server;
+  class Server *server;
 };
 
 #endif
