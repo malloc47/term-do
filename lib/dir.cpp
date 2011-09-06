@@ -13,8 +13,8 @@
 using namespace std;
 
 list_t tokens;
-const string pwd = string(getenv("PWD"))+"/";
-const string home = string(getenv("HOME"))+"/";
+const string PWD = string(getenv("PWD"))+"/";
+const string HOME = string(getenv("HOME"))+"/";
 
 bool valid_dir(string dir){
   struct stat entry;
@@ -84,8 +84,8 @@ list_t ls_fe(string path) {
 }
 
 list_t base_list() {
-  list_t dir = ls_d(pwd);
-  list_t files = ls_f(pwd);
+  list_t dir = ls_d(PWD);
+  list_t files = ls_f(PWD);
   CONCAT2_l(dir,files,output);
   output.push_back("/");
   output.push_back("~/");
@@ -127,7 +127,7 @@ list_t list() {
     // now walk from the starting directory token (e.g. second/) to
     // the latest token, concatenating the directories
     for(unsigned int i=start;i<tokens.size();i++)
-      listing = listing + (tokens[i].compare("~/") ? tokens[i] : home);
+      listing = listing + (tokens[i].compare("~/") ? tokens[i] : HOME);
 
     // get both a directory and file listing
     list_t dir = ls_d(listing);
