@@ -1,10 +1,13 @@
 #include "term-do.h"
 
-//list_t load_plugins
+list_t load_plugins;
 
 TermDo::TermDo() {
   view.setPrompt("/-/");
-  plugins = new Plugins();
+  if(load_plugins.empty())
+    plugins = new Plugins();
+  else
+    plugins = new Plugins(load_plugins);
   init();
 }
 
@@ -32,7 +35,8 @@ int TermDo::handleChar(char c) {
     matcher->addChar(c);
   // downcase "automatically"
   else if(c >= 'A' && c <= 'Z')
-    matcher->addChar(c-('Z'-'z'));
+    matcher->addChar(c);
+    // matcher->addChar(c-('Z'-'z'));
   // make slash act like a tab, for ido-like behavior
   else if(c == '/') {
     matcher->addChar(c);
@@ -82,9 +86,6 @@ bool TermDo::commitValidToken() {
   if(match.empty())
     return false;
 
-  // if(matcher->getQuery().empty())
-  //   return true;
-
   plugins->push(match);
 
   // get a new matcher
@@ -127,6 +128,47 @@ string TermDo::loopDo() {
 }
 
 int main(int argc, char *argv[]) {
+
+  int cmdargs;
+  static struct option long_options[] = {
+    {"lib", 1, 0, 'l'},
+    {"help", 0, 0, 'h'},
+    {"version", 0, 0, 'v'},
+    {NULL, 0, NULL, 0}
+  };
+  int option_index = 0;
+
+  while ((cmdargs = getopt_long(argc, argv, "l:hv",
+				long_options, &option_index)) != -1) {
+    switch (cmdargs) {
+    case 'l':
+      {
+	stringstream ss(optarg);
+	string item;
+	while(getline(ss,item,','))
+	  load_plugins.push_back(item);
+      }
+      break;
+    case 'h':
+      printf("Usage: %s [options] \n\
+Options: \n\
+  -l,--lib                    Specify the plugins to load (comma-delimited) \n\
+  -h,--help                   Display this information \n\
+  -v,--version                Display version information\n",argv[0]);
+      exit(0);
+      break;
+    case '?':
+      exit(0);
+      break;
+    }
+  }
+
+  // if (optind < argc) {
+  //   while (optind < argc)
+  //     framenum = atoi(argv[optind++]);
+  // }
+
+
   string command;
 
   // like this so TermDo's destructor is called

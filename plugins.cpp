@@ -6,6 +6,11 @@ Plugins::Plugins() {
       loadLibrary("./lib/" + libraries[i]);
 }
 
+Plugins::Plugins(list_t libraries) {
+  FOR_l(i,libraries)
+      loadLibrary("./lib/" + libraries[i]+".so");
+}
+
 Plugins::~Plugins() {
   FOR_l(i,plugins)
     dlclose(plugins[i].handle);
@@ -32,11 +37,10 @@ list_t Plugins::findLibraries(string dirname) {
 bool Plugins::loadLibrary(string library) {
 
   plugin_t plugin;  
-  // printf("\r%s\n\n",library.c_str());
 
   plugin.handle = dlopen(library.c_str(), RTLD_LAZY);
   if (!plugin.handle) {
-    printf( "\rFailed to open library: %s\n",dlerror());
+    printf( "\rFailed to open library %s\n",dlerror());
     return false;
   }
 

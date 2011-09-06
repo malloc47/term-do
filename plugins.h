@@ -16,6 +16,7 @@ using namespace std;
 class Plugins {
 public:
   Plugins();
+  Plugins(list_t);
   ~Plugins();
   void getDictionary(Matcher*);
   bool unambiguousCommand();

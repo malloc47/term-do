@@ -6,8 +6,11 @@
 #include "matcher.h"
 #include "plugins.h"
 #include "view.h"
+#include "server.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <getopt.h>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -29,6 +32,7 @@ private:
   Matcher *matcher;
   Plugins *plugins;
   class View view;
+  // class Server server;
 };
 
 #endif
