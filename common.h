@@ -44,6 +44,12 @@ typedef struct {
 inline bool is_dir(string input) {
   if(input.empty()) return false;
   return input[input.size()-1]=='/';
-}  
+}
 
+inline string assembleLine(list_t line) {
+  string output = "";
+  FOR_l(i,line)
+    output = output + (i==0 || is_dir(line[i-1]) ? "" : " ") + line[i];
+  return output;
+}
 #endif
