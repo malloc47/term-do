@@ -27,7 +27,7 @@ public:
   bool loadLibrary(string);
   list_t findLibraries(string);
 private:
-  list_t tokens;
+  list_t tokens; // This should be moved to Matcher which should subsequently be name Query
   vector<plugin_t> plugins;
 };
 
