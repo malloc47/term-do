@@ -4,6 +4,7 @@
 #include "common.h"
 #include "searcher.h"
 #include "tst.h"
+#include "tst-line.h"
 #include <stdio.h>
 #include <string>
 #include <vector>

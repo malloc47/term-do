@@ -29,11 +29,11 @@ class TST : public Searcher {
 public:
   TST();
   ~TST();
-  void insert(string s);
-  bool search(string s);
+  virtual void insert(string s);
+  virtual bool search(string s);
+  virtual list_t searchp(string s);
+  virtual bool containsp(string s);
   bool searchr(string s);
-  list_t searchp(string s);
-  bool containsp(string s);
   list_t searchh(string s,int d);
   list_t sort();
 private:

@@ -4,6 +4,8 @@
 
 #include "common.h"
 
+using namespace std;
+
 // Abstract class for any object to do string searching
 class Searcher {
 public:

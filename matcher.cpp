@@ -2,7 +2,7 @@
 
 Matcher::Matcher() {
   query="";
-  searcher = new TST();
+  searcher = new TSTLine();
 }
 
 Matcher::~Matcher() {
@@ -23,15 +23,9 @@ list_t Matcher::getMatches() {
 }
 
 string Matcher::getMatch() {
-  if(history.empty())
-    return query;
-
-  if(history.top().empty())
-    return query;
-
-  if(!history.top().front().compare(""))
-    return query;
-
+  if(history.empty()) return query;
+  if(history.top().empty()) return query;
+  if(!history.top().front().compare("")) return query;
   return history.top().front();
 }
 

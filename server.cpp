@@ -52,7 +52,15 @@ bool Server::commitValidToken() {
   string match = matcher->getMatch();
   if(match.empty())
     return false;
-  plugins->push(match);
+  if(match.find(" ")!=string::npos) {
+    stringstream ss(match);
+    string item;
+    while(getline(ss,item,' '))
+      if(!item.empty() && item.compare(" "))
+	plugins->push(item);
+  }
+  else
+    plugins->push(match);
   cleanupMatcher();
   initMatcher();
   return true;
