@@ -22,74 +22,75 @@ bool TST::search(string s) {
   return false;
 }
 
-bool TST::searchRecursive(string s) { return searchRecursive(root,&s,0);}
-bool TST::searchRecursive(TSTp p,string *s, unsigned int pos) {
+bool TST::searchr(string s) { return searchr(root,&s,0);}
+bool TST::searchr(TSTp p,string *s, unsigned int pos) {
   if(!p || s->empty()) return false;
   char c = downcase(pos < s->length() ? s->at(pos) : 0);
   if(c < p->val)
-    return searchRecursive(p->left,s,pos);
+    return searchr(p->left,s,pos);
   else if(c > p->val)
-    return searchRecursive(p->right,s,pos);
+    return searchr(p->right,s,pos);
   else {
     if(c==0) return true;
-    return searchRecursive(p->middle,s,pos+1);
+    return searchr(p->middle,s,pos+1);
   }
 }
 
-list_t TST::searchPrefix(string s) { 
+list_t TST::searchp(string s) { 
   list_t output;
-  if(s.size() > 0) searchPrefix(root,&s,0,&output);
+  if(s.size() > 0) searchp(root,&s,0,&output);
   else output=sort();
   return output;
 }
-void TST::searchPrefix(TSTp p,string *s, unsigned int pos, list_t *output) {
+void TST::searchp(TSTp p,string *s, unsigned int pos, list_t *output) {
   if(!p || s->empty()) return;
   char c = downcase(pos < s->length() ? s->at(pos) : 0);
   if(c < p->val)
-    searchPrefix(p->left,s,pos,output);
+    searchp(p->left,s,pos,output);
   else if(c > p->val)
-    searchPrefix(p->right,s,pos,output);
+    searchp(p->right,s,pos,output);
   else {
     if(pos==s->length()-1)
       sort(p->middle,output);
-    searchPrefix(p->middle,s,pos+1,output);
+    searchp(p->middle,s,pos+1,output);
   }
 }
 
-bool TST::containsPrefix(string s) {return containsPrefix(root,&s,0);}
-bool TST::containsPrefix(TSTp p,string *s, unsigned int pos) {
+bool TST::containsp(string s) {return containsp(root,&s,0);}
+bool TST::containsp(TSTp p,string *s, unsigned int pos) {
   if(!p || s->empty()) return false;
   char c = downcase(pos < s->length() ? s->at(pos) : 0);
   if(c < p->val)
-    return containsPrefix(p->left,s,pos);
+    return containsp(p->left,s,pos);
   else if(c > p->val)
-    return containsPrefix(p->right,s,pos);
+    return containsp(p->right,s,pos);
   else {
      if(pos==s->length()-1)
        return true;
-    return containsPrefix(p->middle,s,pos+1);
+    return containsp(p->middle,s,pos+1);
   }
 }
 
-list_t TST::searchHamming(string s,int d) {
+// Hamming distance search
+list_t TST::searchh(string s,int d) {
   list_t output;
-  searchHamming(root,&s,0,d,&output);
+  searchh(root,&s,0,d,&output);
   return output;
 }
-void TST::searchHamming(TSTp p, string *s, unsigned int pos, int d, list_t *output) {
+void TST::searchh(TSTp p, string *s, unsigned int pos, int d, list_t *output) {
   if(!p || d<0) return;
   char c = downcase(pos < s->length() ? s->at(pos) : 0);
   if(d>0 || c < p->val)
-    searchHamming(p->left,s,pos,d,output);
+    searchh(p->left,s,pos,d,output);
   if(p->val == 0) {
     // if( s->length()-pos <= d)
     if(pos >= s->length()) // no shorter words
       output->push_back(*p->data);
   }
   else
-    searchHamming(p->middle,s,c ? pos+1:pos, (c==p->val) ? d:d-1,output);
+    searchh(p->middle,s,c ? pos+1:pos, (c==p->val) ? d:d-1,output);
   if(d>0 || c > p->val)
-    searchHamming(p->right,s,pos,d,output);
+    searchh(p->right,s,pos,d,output);
 }
 
 void TST::insert(string s) {root = insert(root,&s,0);}

@@ -2,6 +2,7 @@
 #define MATCHER_H_
 
 #include "common.h"
+#include "searcher.h"
 #include "tst.h"
 #include <stdio.h>
 #include <string>
@@ -12,13 +13,14 @@
 
 using namespace std;
 
-class Matcher : public TST{
+class Matcher{
 public:
   Matcher();
   ~Matcher();
   void setDictionary(list_t);
   void addCharRestricted(char);
   void addChar(char);
+  void insert(string); // stub until we start passing around TSTs instead of matchers
   bool removeChar();
   list_t getMatches();
   string getMatch();
@@ -28,7 +30,7 @@ public:
   void rotateBackward();
 
 private:
-  list_t matches(string);
+  Searcher *searcher;
   string query;
   list_t dictionary;
   // for better or worse, matches are buffered in the history stack,
