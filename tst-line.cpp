@@ -18,8 +18,10 @@ list_t TSTLine::searchp(string s) {
   //FIXME: really ugly brute-force hack
   FOR_l(i,lines)
     FOR_l(j,candidates)
-      if(lines[i].find(candidates[j]) != string::npos)
+    if(lines[i].find(candidates[j]) != string::npos) {
 	output.push_back(lines[i]);
+	break;
+    }
   return output;
 }
 
