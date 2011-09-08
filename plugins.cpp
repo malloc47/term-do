@@ -82,17 +82,13 @@ bool Plugins::loadLibrary(string library) {
   return true;
 }
 
-void Plugins::getDictionary(Matcher* matcher) {
+void Plugins::populate(Searcher* searcher) {
   FOR_l(i,plugins) {
     list_t dict = plugins[i].list();  
     if(!dict.empty())
       FOR_l(j,dict)
-	matcher->insert(dict[j]);
+	searcher->insert(dict[j]);
   }
-}
-
-bool Plugins::unambiguousCommand() {
-  return tokens.size() > 2;
 }
 
 string Plugins::getCommand() {
@@ -105,22 +101,27 @@ string Plugins::getCommand() {
   return "";
 }
 
-list_t Plugins::getTokens() {return tokens;}
-
-void Plugins::push(string token) {
-  tokens.push_back(token);
-  // update individual plugins
-  FOR_l(i,plugins) {
+void Plugins::update(list_t tokens) {
+  FOR_l(i,plugins)
     plugins[i].update(tokens);
-  }
 }
 
-void Plugins::pop() {
-  if(tokens.size() > 0) {
-    tokens.pop_back();
-    // update individual plugins
-    FOR_l(i,plugins) {
-      plugins[i].update(tokens);
-    }
-  }
-}
+// list_t Plugins::getTokens() {return tokens;}
+
+// void Plugins::push(string token) {
+//   tokens.push_back(token);
+//   // update individual plugins
+//   FOR_l(i,plugins) {
+//     plugins[i].update(tokens);
+//   }
+// }
+
+// void Plugins::pop() {
+//   if(tokens.size() > 0) {
+//     tokens.pop_back();
+//     // update individual plugins
+//     FOR_l(i,plugins) {
+//       plugins[i].update(tokens);
+//     }
+//   }
+// }

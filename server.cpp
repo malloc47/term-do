@@ -2,7 +2,9 @@
 
 Server::Server() {
   plugins = new Plugins();
-  initMatcher();
+  Searcher *s = cache.fetch();
+  plugins->populate(s);
+  query = new Query(s);
 }
 
 Server::Server(list_t plugin_list) {
@@ -10,46 +12,53 @@ Server::Server(list_t plugin_list) {
     plugins = new Plugins();
   else
     plugins = new Plugins(plugin_list);
-  initMatcher();
+  Searcher *s = cache.fetch();
+  plugins->populate(s);
+  query = new Query(s);
 }
 
 Server::~Server() {
   delete plugins;
-  cleanupMatcher();
+  delete query;
 }
 
-void Server::initMatcher() {
-  matcher = new Matcher();
-  plugins->getDictionary(matcher);
+// Adding is broken up because it's expensive
+void Server::addToken(string token) {
+  Searcher *s = cache.generate();
+  tokens.push(token);
+  plugins->update(tokens.getTokens());
+  plugins->populate(s);
+  query->reset(cache.fetch());
 }
 
-void Server::cleanupMatcher() {
-  delete matcher;
+// Removing is cheap thanks to the stack cache
+void Server::removeToken() {
+  if(tokens.getTokens().empty()) return;
+  tokens.pop();
+  cache.pop();
+  query->reset(cache.fetch());
+  plugins->update(tokens.getTokens());
 }
 
 void Server::addChar(char c) {
-  matcher->addChar(c);
-  if(c=='/' && matcher->exactMatch()) commitToken();
+  query->addChar(c);
+  if(c=='/' && query->exactMatch()) commitToken();
 }
 
 void Server::removeChar() {
-  // if matcher out of characters to backspace
-  if(!matcher->removeChar()) {
-    // remove token
-    plugins->pop();
-    cleanupMatcher();
-    initMatcher();
-  }
+  // if query out of characters to backspace
+  if(!query->removeChar())
+    removeToken();
 }
 
 bool Server::commitFinalToken() {
-  if(matcher->getMatches().size()<=1 || matcher->exactMatch())
+  if(query->getMatches().size()<=1 || query->exactMatch())
     commitValidToken();
-  return (!matcher->getQuery().empty() || plugins->getTokens().size() > 0);
+  return (!query->getQuery().empty() || tokens.getTokens().size() > 0);
 }
 
 bool Server::commitValidToken() {
-  string match = matcher->getMatch();
+  string match = query->getMatch();
   if(match.empty())
     return false;
   if(match.find(" ")!=string::npos) {
@@ -57,27 +66,23 @@ bool Server::commitValidToken() {
     string item;
     while(getline(ss,item,' '))
       if(!item.empty() && item.compare(" "))
-	plugins->push(item);
+	addToken(item);
   }
   else
-    plugins->push(match);
-  cleanupMatcher();
-  initMatcher();
+    addToken(match);
   return true;
 }
 
 bool Server::commitToken() {
-  if(matcher->getQuery().empty())
+  if(query->getQuery().empty())
     return false;
-  plugins->push(matcher->getQuery());
-  cleanupMatcher();
-  initMatcher();
+  addToken(query->getQuery());
   return true;
 }
 
-string Server::getQuery() {return matcher->getQuery();}
-list_t Server::getMatches() {return matcher->getMatches();}
-list_t Server::getTokens() {return plugins->getTokens();}
+string Server::getQuery() {return query->getQuery();}
+list_t Server::getMatches() {return query->getMatches();}
+list_t Server::getTokens() {return tokens.getTokens();}
 string Server::getCommand() {return plugins->getCommand();}
-void Server::rotateForward() {matcher->rotateForward();}
-void Server::rotateBackward() {matcher->rotateBackward();}
+void Server::rotateForward() {query->rotateForward();}
+void Server::rotateBackward() {query->rotateBackward();}

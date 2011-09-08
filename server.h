@@ -2,11 +2,13 @@
 #define SERVER_H_
 
 #include "common.h"
-
-#include "matcher.h"
+#include "query.h"
 #include "plugins.h"
+#include "tokens.h"
+#include "cache.h"
 #include <string>
 #include <vector>
+#include <stack>
 
 class Server {
 public:
@@ -26,9 +28,11 @@ public:
   list_t getTokens();
 
 private:
-  void initMatcher();
-  void cleanupMatcher();
-  Matcher *matcher;
+  void addToken(string);
+  void removeToken();
+  Tokens tokens;
+  Cache cache;
+  Query *query;
   Plugins *plugins;
 };
 

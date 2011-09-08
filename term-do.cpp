@@ -22,7 +22,7 @@ int TermDo::handleChar(char c) {
   // downcase "automatically"
   else if(c >= 'A' && c <= 'Z')
     server->addChar(c);
-    // matcher->addChar(c-('Z'-'z'));
+    // query->addChar(c-('Z'-'z'));
   // make slash act like a tab, for ido-like behavior
   else if(c == '/')
     server->addChar(c);
@@ -47,7 +47,7 @@ int TermDo::handleChar(char c) {
     done = server->commitFinalToken();
   // backspace
   else if(c==127)
-    // if matcher out of characters to backspace
+    // if query out of characters to backspace
     server->removeChar();
   
   // C-c , C-d , C-g, or time to quit

@@ -1,16 +1,16 @@
-#include "matcher.h"
+#include "query.h"
 
-Matcher::Matcher() {
+Query::Query(Searcher *s) {
   query="";
-  searcher = new TSTLine();
+  searcher = s;
 }
 
-Matcher::~Matcher() {
+Query::~Query() {
   delete searcher;
 }
 // The output of this can turn into segfault city if you're not careful
 // Oh why can't we have the typesafe haven of Haskell's Maybe monad...
-list_t Matcher::getMatches() {
+list_t Query::getMatches() {
   if(history.empty()) {
     list_t candidates = searcher->searchp(query);
     if(!candidates.empty())
@@ -22,33 +22,30 @@ list_t Matcher::getMatches() {
   return history.top();
 }
 
-string Matcher::getMatch() {
-  if(history.empty()) return query;
-  if(history.top().empty()) return query;
-  if(!history.top().front().compare("")) return query;
+string Query::getMatch() {
+  if(history.empty() || 
+     history.top().empty() ||
+     !history.top().front().compare("")) 
+    return query;
   return history.top().front();
 }
 
-bool Matcher::exactMatch() {
+bool Query::exactMatch() {
   return searcher->search(query);
 }
 
-void Matcher::addCharRestricted(char c) {
-  if(searcher->containsp(query+c))
-    query += c;
-  history.push(searcher->searchp(query));
-}
+// void Query::addCharRestricted(char c) {
+//   if(searcher->containsp(query+c))
+//     query += c;
+//   history.push(searcher->searchp(query));
+// }
 
-void Matcher::addChar(char c) {
+void Query::addChar(char c) {
   query += c;
   history.push(searcher->searchp(query));
 }
 
-void Matcher::insert(string s) {
-  searcher->insert(s);
-}
-
-bool Matcher::removeChar() {
+bool Query::removeChar() {
   if(query.length()>0) {
     query=query.substr(0,query.length()-1);
     history.pop();
@@ -57,9 +54,9 @@ bool Matcher::removeChar() {
   return false;
 }
 
-string Matcher::getQuery() {return query;}
+string Query::getQuery() {return query;}
 
-void Matcher::rotateForward() {
+void Query::rotateForward() {
   if(history.top().size()<2) return;
   list_t current_matches = history.top();
   history.pop();
@@ -68,11 +65,18 @@ void Matcher::rotateForward() {
   history.push(current_matches);
 }
 
-void Matcher::rotateBackward() {
+void Query::rotateBackward() {
   if(history.top().size()<2) return;
   list_t current_matches = history.top();
   history.pop();
   current_matches.insert(current_matches.begin(),current_matches.back());
   current_matches.pop_back();
   history.push(current_matches);
+}
+
+void Query::reset(Searcher *s) {
+  query=""; 
+  while(!history.empty())
+    history.pop();
+  searcher=s;
 }

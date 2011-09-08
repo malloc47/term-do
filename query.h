@@ -1,5 +1,5 @@
-#ifndef MATCHER_H_
-#define MATCHER_H_
+#ifndef QUERY_H_
+#define QUERY_H_
 
 #include "common.h"
 #include "searcher.h"
@@ -14,14 +14,14 @@
 
 using namespace std;
 
-class Matcher{
+class Query{
 public:
-  Matcher();
-  ~Matcher();
-  void setDictionary(list_t);
-  void addCharRestricted(char);
+  // Query();
+  Query(Searcher*);
+  ~Query();
+  // void addCharRestricted(char);
   void addChar(char);
-  void insert(string); // stub until we start passing around TSTs instead of matchers
+  // void insert(string); // stub until we start passing around TSTs instead of matcher
   bool removeChar();
   list_t getMatches();
   string getMatch();
@@ -29,15 +29,17 @@ public:
   string getQuery();
   void rotateForward();
   void rotateBackward();
+  void reset(Searcher*);
 
 private:
   Searcher *searcher;
   string query;
-  list_t dictionary;
+  // list_t dictionary;
   // for better or worse, matches are buffered in the history stack,
   // which is a space for time tradeoff that reduce number of search
   // operatons when backspacing characters
   stack< list_t > history;
+  list_t tokens;
 };
 
 #endif

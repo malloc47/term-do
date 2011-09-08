@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 #include "vt100.h"
-#include "matcher.h"
+#include "query.h"
 #include "plugins.h"
 
 using namespace std;

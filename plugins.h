@@ -2,7 +2,7 @@
 #define PLUGINS_H_
 
 #include "common.h"
-#include "matcher.h"
+#include "query.h"
 #include <dlfcn.h>
 #include <dirent.h>
 #include <vector>
@@ -18,16 +18,16 @@ public:
   Plugins();
   Plugins(list_t);
   ~Plugins();
-  void getDictionary(Matcher*);
-  bool unambiguousCommand();
+  void populate(Searcher*);
   string getCommand();
-  list_t getTokens(void);
-  void pop();
-  void push(string);
+  // list_t getTokens(void);
+  // void pop();
+  // void push(string);
+  void update(list_t);
   bool loadLibrary(string);
   list_t findLibraries(string);
 private:
-  list_t tokens; // This should be moved to Matcher which should subsequently be name Query
+  // list_t tokens; // This should be moved to Matcher which should subsequently be name Query
   vector<plugin_t> plugins;
 };
 

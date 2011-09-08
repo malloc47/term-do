@@ -3,7 +3,7 @@
 
 #include "common.h"
 #include "vt100.h"
-#include "matcher.h"
+#include "query.h"
 #include "plugins.h"
 #include "view.h"
 #include "server.h"
