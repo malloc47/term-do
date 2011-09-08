@@ -10,7 +10,7 @@ Cache::~Cache() {
 }
 
 Searcher* Cache::generate() {
-  Searcher* s = new TSTLine();
+  Searcher* s = new TST();
   push(s);
   return s;
 }

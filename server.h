@@ -31,7 +31,7 @@ private:
   void addToken(string);
   void removeToken();
   Tokens tokens;
-  Cache cache;
+  Cache *cache;
   Query *query;
   Plugins *plugins;
 };

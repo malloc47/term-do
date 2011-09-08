@@ -6,7 +6,7 @@ Query::Query(Searcher *s) {
 }
 
 Query::~Query() {
-  delete searcher;
+  // DON'T DELETE searcher HERE
 }
 // The output of this can turn into segfault city if you're not careful
 // Oh why can't we have the typesafe haven of Haskell's Maybe monad...

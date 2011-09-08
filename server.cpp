@@ -1,18 +1,20 @@
 #include "server.h"
 
 Server::Server() {
+  cache = new Cache();
   plugins = new Plugins();
-  Searcher *s = cache.fetch();
+  Searcher *s = cache->fetch();
   plugins->populate(s);
   query = new Query(s);
 }
 
 Server::Server(list_t plugin_list) {
+  cache = new Cache();
   if(plugin_list.empty())
     plugins = new Plugins();
   else
     plugins = new Plugins(plugin_list);
-  Searcher *s = cache.fetch();
+  Searcher *s = cache->fetch();
   plugins->populate(s);
   query = new Query(s);
 }
@@ -20,23 +22,25 @@ Server::Server(list_t plugin_list) {
 Server::~Server() {
   delete plugins;
   delete query;
+  // delete this *last*
+  delete cache;
 }
 
 // Adding is broken up because it's expensive
 void Server::addToken(string token) {
-  Searcher *s = cache.generate();
+  Searcher *s = cache->generate();
   tokens.push(token);
   plugins->update(tokens.getTokens());
   plugins->populate(s);
-  query->reset(cache.fetch());
+  query->reset(cache->fetch());
 }
 
 // Removing is cheap thanks to the stack cache
 void Server::removeToken() {
   if(tokens.getTokens().empty()) return;
   tokens.pop();
-  cache.pop();
-  query->reset(cache.fetch());
+  cache->pop();
+  query->reset(cache->fetch());
   plugins->update(tokens.getTokens());
 }
 
