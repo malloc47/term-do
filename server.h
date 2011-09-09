@@ -5,7 +5,7 @@
 #include "query.h"
 #include "plugins.h"
 #include "tokens.h"
-#include "cache.h"
+#include "cache.hpp"
 #include <string>
 #include <vector>
 #include <stack>
@@ -31,7 +31,7 @@ private:
   void addToken(string);
   void removeToken();
   Tokens tokens;
-  Cache *cache;
+  Cache<Searcher*> *cache;
   Query *query;
   Plugins *plugins;
 };

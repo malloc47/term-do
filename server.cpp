@@ -1,7 +1,7 @@
 #include "server.h"
 
 Server::Server() {
-  cache = new Cache();
+  cache = new Cache<Searcher*>();
   plugins = new Plugins();
   Searcher *s = cache->fetch();
   plugins->populate(s);
@@ -9,7 +9,7 @@ Server::Server() {
 }
 
 Server::Server(list_t plugin_list) {
-  cache = new Cache();
+  cache = new Cache<Searcher*>();
   if(plugin_list.empty())
     plugins = new Plugins();
   else
@@ -26,7 +26,6 @@ Server::~Server() {
   delete cache;
 }
 
-// Adding is broken up because it's expensive
 void Server::addToken(string token) {
   Searcher *s = cache->generate();
   tokens.push(token);
