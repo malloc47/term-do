@@ -30,8 +30,7 @@ public:
 private:
   void addToken(string);
   void removeToken();
-  Tokens tokens;
-  Cache<Searcher*> *cache;
+  Tokens *tokens;
   Query *query;
   Plugins *plugins;
 };

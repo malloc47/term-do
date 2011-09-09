@@ -1,8 +1,26 @@
 #include "tokens.h"
 
-Tokens::Tokens() {}
-Tokens::~Tokens() {}
+Tokens::Tokens() {
+  cache = new Cache<Searcher*>();
+  Searcher *s = new TST();
+  cache->push(s);
+}
+Tokens::~Tokens() {delete cache;}
 
 list_t Tokens::getTokens() {return tokens;}
-void Tokens::push(string token) {tokens.push_back(token);}
-void Tokens::pop() {if(tokens.size() > 0) tokens.pop_back();}
+
+Searcher* Tokens::push(string token) {
+  tokens.push_back(token);
+  Searcher *s = new TST();
+  cache->push(s);
+  return s;
+}
+
+Searcher* Tokens::pop() {
+  if(tokens.size() > 0) {
+    tokens.pop_back();
+    cache->pop();
+  }
+  return cache->top();
+}
+Searcher* Tokens::getSearcher() {return cache->top();}

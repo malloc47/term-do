@@ -5,6 +5,7 @@
 #include "searcher.h"
 #include "tst.h"
 #include "tst-line.h"
+#include "cache.hpp"
 
 #include <stdio.h>
 #include <string>
@@ -20,13 +21,15 @@ public:
   Tokens();
   ~Tokens();
   list_t getTokens();
-  void push(string);
-  void pop();
+  Searcher* push(string);
+  Searcher* pop();
+  Searcher* getSearcher();
   // bool commitToken(string);
   // bool commitValidToken(string);
   // bool commitFinalToken(string);
 
 private:
+  Cache<Searcher*>* cache;
   list_t tokens;
 };
 

@@ -9,51 +9,35 @@
 template <class T>
 class Cache {
 public:
-  Cache();
-  ~Cache();
-  T generate();
-  T fetch();
-  void push(T);
-  void pop();
-
+  ~Cache() {
+    while(!cache.empty())
+      cache.pop();
+  }
+  T top() {return cache.top();}
+  void push(T s) {cache.push(s);}
+  void pop() {cache.pop();}
 private:
   stack<T> cache;
 };
 
+// Specialization that handles pointers (hence the new/delete constructor/cleanup)
 template <class T>
-Cache<T>::Cache() {}
-
-template <class T>
-Cache<T>::~Cache() {
-  while(!cache.empty()) {
-    delete cache.top();
+class Cache<T*> {
+public:
+  ~Cache() {
+    while(!cache.empty()) {
+      delete cache.top();
+      cache.pop();
+    }
+  }
+  T* top() {return cache.top();}
+  void push(T* s) {cache.push(s);}
+  void pop() {
+    delete cache.top(); 
     cache.pop();
   }
-}
-
-template <class T>
-T Cache<T>::generate() {
-  T s = new TST();
-  push(s);
-  return s;
-}
-
-template <class T>
-T Cache<T>::fetch() {
-  if(!cache.empty())
-    return cache.top();
-  else
-    return generate();
-}
-
-template <class T>
-void Cache<T>::push(T s) {cache.push(s);}
-
-template <class T>
-void Cache<T>::pop() {
-  delete cache.top(); 
-  cache.pop();
-}
-
+private:
+  stack<T*> cache;
+};
 
 #endif
