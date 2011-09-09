@@ -10,6 +10,12 @@
 #include <sys/stat.h>
 #include "../common.h"
 
+#define CONCAT2_l(p,q,v)			\
+  list_t (v);					\
+  (v).reserve((p).size()+(q).size());		\
+  (v).insert((v).end(),(p).begin(),(p).end());	\
+  (v).insert((v).end(),(q).begin(),(q).end());
+
 using namespace std;
 
 list_t tokens;
