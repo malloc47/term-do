@@ -14,7 +14,6 @@ using namespace std;
 
 class Rnd : public Plugin {
 public:
-  void init() {}
   void update(list_t new_tokens) {tokens = new_tokens; srand(time(NULL));}
   list_t list() {
     list_t output;

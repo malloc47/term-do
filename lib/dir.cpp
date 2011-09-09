@@ -24,7 +24,6 @@ public:
     PWD = string(getenv("PWD"))+"/";
     HOME = string(getenv("HOME"))+"/";
   }
-  void init() {}
   void update(list_t new_tokens) {tokens = new_tokens;}
   list_t list() {
     if(tokens.empty()) {

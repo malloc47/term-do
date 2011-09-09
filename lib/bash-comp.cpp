@@ -15,7 +15,7 @@ using namespace std;
 
 class BashComp : public Plugin {
 public:
-  void init() {
+  BashComp() {
     FILE *fpipe;
     char buffer[256];
 

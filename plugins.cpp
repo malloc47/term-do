@@ -62,7 +62,6 @@ bool Plugins::loadLibrary(string library) {
   }
 
   plugin.obj=plugin.create();
-  plugin.obj->init();
   plugins.push_back(plugin);
 
   return true;

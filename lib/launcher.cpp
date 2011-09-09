@@ -14,7 +14,7 @@ using namespace std;
 
 class Launcher : public Plugin {
 public:
-  void init() {
+  Launcher() {
     list_t paths = splitString(string(getenv("PATH")),':');
     FOR_l(i,paths) {
       DIR* dirp = opendir(paths[i].c_str());
