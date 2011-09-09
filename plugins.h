@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "query.h"
+#include "lib/plugin.h"
 #include <dlfcn.h>
 #include <dirent.h>
 #include <vector>
@@ -12,6 +13,16 @@
 #include <stdio.h>
 
 using namespace std;
+
+typedef Plugin* (*create_f)();
+typedef void (*destroy_f)(Plugin*);
+
+typedef struct {
+  create_f create;
+  Plugin* obj;
+  destroy_f destroy;
+  void *handle;
+} plugin_t;
 
 class Plugins {
 public:

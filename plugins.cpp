@@ -12,8 +12,10 @@ Plugins::Plugins(list_t libraries) {
 }
 
 Plugins::~Plugins() {
-  FOR_l(i,plugins)
+  FOR_l(i,plugins) {
+    plugins[i].destroy(plugins[i].obj);
     dlclose(plugins[i].handle);
+  }
 }
 
 // Directory listing of *.so files
@@ -35,8 +37,7 @@ list_t Plugins::findLibraries(string dirname) {
 }
 
 bool Plugins::loadLibrary(string library) {
-
-  plugin_t plugin;  
+  plugin_t plugin;
 
   plugin.handle = dlopen(library.c_str(), RTLD_LAZY);
   if (!plugin.handle) {
@@ -45,7 +46,7 @@ bool Plugins::loadLibrary(string library) {
   }
 
   dlerror();
-  plugin.list  = (list_f) dlsym(plugin.handle, "list");
+  plugin.create  = (create_f) dlsym(plugin.handle, "create_plugin");
   if (dlerror()) {
     printf("\rFailed to load \"list\" symbol");
     dlclose(plugin.handle);
@@ -53,38 +54,23 @@ bool Plugins::loadLibrary(string library) {
   }
 
   dlerror();
-  plugin.update  = (update_f) dlsym(plugin.handle, "update");
+  plugin.destroy  = (destroy_f) dlsym(plugin.handle, "destroy_plugin");
   if (dlerror()) {
-    printf("\rFailed to load \"update\" symbol");
+    printf("\rFailed to load \"list\" symbol");
     dlclose(plugin.handle);
     return false;
   }
 
-  dlerror();
-  plugin.cmd  = (cmd_f) dlsym(plugin.handle, "cmd");
-  if (dlerror()) {
-    printf("\rFailed to load \"cmd\" symbol");
-    dlclose(plugin.handle);
-    return false;
-  }
-
-  dlerror();
-  plugin.init  = (init_f) dlsym(plugin.handle, "init");
-  if (dlerror()) {
-    printf("\rfailed to load \"init\" symbol");
-    dlclose(plugin.handle);
-    return false;
-  }
-
-  plugin.init();
-
+  plugin.obj=plugin.create();
+  plugin.obj->init();
   plugins.push_back(plugin);
+
   return true;
 }
 
 void Plugins::populate(Searcher* searcher) {
   FOR_l(i,plugins) {
-    list_t dict = plugins[i].list();  
+    list_t dict = plugins[i].obj->list();  
     if(!dict.empty())
       FOR_l(j,dict)
 	searcher->insert(dict[j]);
@@ -94,7 +80,7 @@ void Plugins::populate(Searcher* searcher) {
 string Plugins::getCommand() {
   // TODO: handle collisions
   FOR_l(i,plugins) {
-    string cmd = plugins[i].cmd();
+    string cmd = plugins[i].obj->cmd();
     if(!cmd.empty())
       return cmd;
   }
@@ -103,25 +89,5 @@ string Plugins::getCommand() {
 
 void Plugins::update(list_t tokens) {
   FOR_l(i,plugins)
-    plugins[i].update(tokens);
+    plugins[i].obj->update(tokens);
 }
-
-// list_t Plugins::getTokens() {return tokens;}
-
-// void Plugins::push(string token) {
-//   tokens.push_back(token);
-//   // update individual plugins
-//   FOR_l(i,plugins) {
-//     plugins[i].update(tokens);
-//   }
-// }
-
-// void Plugins::pop() {
-//   if(tokens.size() > 0) {
-//     tokens.pop_back();
-//     // update individual plugins
-//     FOR_l(i,plugins) {
-//       plugins[i].update(tokens);
-//     }
-//   }
-// }

@@ -9,81 +9,76 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include "../common.h"
+#include "plugin.h"
 
 using namespace std;
 
-list_t tokens;
-map<string,string> lookup;
+class BashComp : public Plugin {
+public:
+  void init() {
+    FILE *fpipe;
+    char buffer[256];
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void init() {
-  FILE *fpipe;
-  char buffer[256];
-
-  if ( !(fpipe = (FILE*)popen(string("./comp-func.sh").c_str(),"r")) ) {  
-    printf("\rProblems with pipe\n");
-    return;
+    if ( !(fpipe = (FILE*)popen(string("./comp-func.sh").c_str(),"r")) ) {  
+      printf("\rProblems with pipe\n");
+      return;
+    }
+    while (fgets(buffer, sizeof buffer, fpipe)) {
+      string line = string(buffer);
+      unsigned int split;
+      line.erase(remove(line.begin(), line.end(), '\n'), line.end());
+      split = line.find(",");
+      lookup.insert( pair<string,string>(line.substr(0,split),line.substr(split+1)) );  
+    }
+    pclose(fpipe);
   }
-  while (fgets(buffer, sizeof buffer, fpipe)) {
-    string line = string(buffer);
-    unsigned int split;
-    line.erase(remove(line.begin(), line.end(), '\n'), line.end());
-    split = line.find(",");
-    lookup.insert( pair<string,string>(line.substr(0,split),line.substr(split+1)) );  
-  }
-  pclose(fpipe);
-}
 
-void update(list_t new_tokens) {tokens = new_tokens;}
+  void update(list_t new_tokens) {tokens = new_tokens;}
 
-list_t list() {
+  list_t list() {
+    if(tokens.empty()) return list_t();
+    if(!lookup.count(tokens[0])) return list_t();
 
-  if(tokens.empty()) return list_t();
+    list_t output;
+    string command = "./completion.sh \"";
+    FOR_l(i,tokens)
+      command = command + (i?(tokens[i-1][tokens[i-1].size()-1]=='/' ? "" : " "):"") + tokens[i];
+    command = command + "\" \"" + lookup.find(tokens[0])->second + "\"" ;
 
-  if(!lookup.count(tokens[0])) return list_t();
+    FILE *fpipe;
+    char buffer[256];
 
-  list_t output;
-
-  string command = "./completion.sh \"";
-
-  FOR_l(i,tokens)
-    command = command + (i?(tokens[i-1][tokens[i-1].size()-1]=='/' ? "" : " "):"") + tokens[i];
-  command = command + "\" \"" + lookup.find(tokens[0])->second + "\"" ;
-
-  FILE *fpipe;
-  char buffer[256];
-
-  if ( !(fpipe = (FILE*)popen(command.c_str(),"r")) ) {  
+    if ( !(fpipe = (FILE*)popen(command.c_str(),"r")) ) {  
       printf("\rProblems with pipe\n");
       return list_t();
+    }
+    while (fgets(buffer, sizeof buffer, fpipe)) {
+      string line = string(buffer);
+      line.erase(remove(line.begin(), line.end(), '\n'), line.end());
+      // printf("\n\n\r%s\n\n",buffer);
+      output.push_back(line);
+    }
+    pclose(fpipe);
+
+    // if ( !(fpipe = (FILE*)popen((command + "-").c_str(),"r")) ) {  
+    //     perror("Problems with pipe");
+    //     return output;
+    // }
+    // while (fgets(buffer, sizeof buffer, fpipe))
+    //   output.push_back(string(buffer));
+    // pclose(fpipe);
+
+    return output;
   }
-  while (fgets(buffer, sizeof buffer, fpipe)) {
-    string line = string(buffer);
-    line.erase(remove(line.begin(), line.end(), '\n'), line.end());
-    // printf("\n\n\r%s\n\n",buffer);
-    output.push_back(line);
+
+  string cmd() {
+    return "";
   }
-  pclose(fpipe);
 
-  // if ( !(fpipe = (FILE*)popen((command + "-").c_str(),"r")) ) {  
-  //     perror("Problems with pipe");
-  //     return output;
-  // }
-  // while (fgets(buffer, sizeof buffer, fpipe))
-  //   output.push_back(string(buffer));
-  // pclose(fpipe);
+private:
+  list_t tokens;
+  map<string,string> lookup;
+};
 
-  return output;
-}
-
-string cmd() {
-  return "";
-}
-
-#ifdef __cplusplus
-}
-#endif
+extern "C" Plugin* create_plugin() {return new BashComp;}
+extern "C" void destroy_plugin( Plugin* plugin ) {delete plugin;}
