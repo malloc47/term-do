@@ -33,7 +33,9 @@ public:
     pclose(fpipe);
   }
 
+  string name() {return "bash-comp";};
   void update(list_t new_tokens) {tokens = new_tokens;}
+  bool match() {return false;}
 
   list_t list() {
     if(tokens.empty()) return list_t();

@@ -24,7 +24,9 @@ public:
     PWD = string(getenv("PWD"))+"/";
     HOME = string(getenv("HOME"))+"/";
   }
+  string name() {return "dir";}
   void update(list_t new_tokens) {tokens = new_tokens;}
+  bool match() {return is_dir(tokens.back()); }
   list_t list() {
     if(tokens.empty()) {
       return base_list();

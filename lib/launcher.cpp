@@ -9,12 +9,15 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include "plugin.h"
+#include "../tst.h"
+#include "../searcher.h"
 
 using namespace std;
 
 class Launcher : public Plugin {
 public:
   Launcher() {
+    dictionary = new TST();
     list_t paths = splitString(string(getenv("PATH")),':');
     FOR_l(i,paths) {
       DIR* dirp = opendir(paths[i].c_str());
@@ -25,19 +28,25 @@ public:
 	string name(entry->d_name);
 	if(stat((paths[i]+"/"+name).c_str(),&st)) continue;
 	if(S_ISREG(st.st_mode) && access((paths[i]+"/"+name).c_str(),X_OK) == 0)
-	  dictionary.push_back(name);
+	  dictionary->insert(name);
       }
       closedir(dirp);
     }
   }
+  ~Launcher() {delete dictionary;}
+
+  string name() { return "launcher";}
 
   void update(list_t new_tokens) {tokens = new_tokens;}
+
+  bool match() {return false;}
+
   list_t list() {
     // return +x files on $PATH if no command has been typed yet, or if
     // its a command that takes other commands (e.g. watch)
     if(tokens.empty() || (!tokens[0].compare("time") || 
 			  !tokens[0].compare("watch")))
-      return dictionary;
+      return dictionary->sort();
     else
       return list_t();
   }
@@ -55,7 +64,8 @@ public:
   }
 
 private:
-  list_t dictionary;
+  // list_t dictionary;
+  TST *dictionary;
   list_t tokens;
   list_t splitString(const string s, char delim) {
     list_t elems;
@@ -67,7 +77,8 @@ private:
     return elems;
   }
   bool is_cmd(string input) {
-    return find(dictionary.begin(), dictionary.end(), input) != dictionary.end();
+    return dictionary->search(input);
+    // return find(dictionary.begin(), dictionary.end(), input) != dictionary.end();
   }
 };
 

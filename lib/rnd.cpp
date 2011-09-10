@@ -14,7 +14,9 @@ using namespace std;
 
 class Rnd : public Plugin {
 public:
+  string name() {return "rnd";}
   void update(list_t new_tokens) {tokens = new_tokens; srand(time(NULL));}
+  bool match() {return false;}
   list_t list() {
     list_t output;
     for(int i=0;i<rand()%100;i++)
