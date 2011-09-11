@@ -11,6 +11,7 @@ typedef vector<string> *list_p;
 
 #define FOR_l(i,v) for(unsigned int (i)=0;(i)<(v).size();(i)++)
 #define FORB_l(i,v) for(unsigned int (i)=(v).size()-1;(i)>0;(i)++)
+#define SEARCHER_t TST
 
 inline bool is_dir(string input) {
   if(input.empty()) return false;
