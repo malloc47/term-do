@@ -26,7 +26,10 @@ public:
   }
   string name() {return "dir";}
   void update(list_t new_tokens) {tokens = new_tokens;}
-  bool match() {return is_dir(tokens.back()); }
+  bool match() {
+    if(tokens.empty()) return false;
+    return is_dir(tokens.back());
+  }
   list_t list() {
     if(tokens.empty()) {
       return base_list();
