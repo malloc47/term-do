@@ -84,3 +84,10 @@ list_t Server::getTokens() {return tokens->getTokens();}
 string Server::getCommand() {return plugins->getCommand();}
 void Server::rotateForward() {query->rotateForward();}
 void Server::rotateBackward() {query->rotateBackward();}
+void Server::fullList() {
+  Searcher *s = tokens->getSearcher();
+  delete s;
+  s = new SEARCHER_t();
+  plugins->populateAll(s);
+  query->reset(s);
+}

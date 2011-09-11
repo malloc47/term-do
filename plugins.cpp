@@ -48,7 +48,7 @@ bool Plugins::loadLibrary(string library) {
   dlerror();
   plugin.create  = (create_f) dlsym(plugin.handle, "create_plugin");
   if (dlerror()) {
-    printf("\rFailed to load \"list\" symbol");
+    printf("\rFailed to load \"create_plugin\" symbol");
     dlclose(plugin.handle);
     return false;
   }
@@ -56,7 +56,7 @@ bool Plugins::loadLibrary(string library) {
   dlerror();
   plugin.destroy  = (destroy_f) dlsym(plugin.handle, "destroy_plugin");
   if (dlerror()) {
-    printf("\rFailed to load \"list\" symbol");
+    printf("\rFailed to load \"destroy_plugin\" symbol");
     dlclose(plugin.handle);
     return false;
   }
@@ -68,6 +68,21 @@ bool Plugins::loadLibrary(string library) {
 }
 
 void Plugins::populate(Searcher* searcher) {
+  bool exclusive = false;
+  FOR_l(i,plugins)
+    if(plugins[i].obj->match())
+      exclusive = true;
+
+  FOR_l(i,plugins) {
+    if(exclusive && !plugins[i].obj->match()) continue;
+    list_t dict = plugins[i].obj->list();  
+    if(!dict.empty())
+      FOR_l(j,dict)
+	searcher->insert(dict[j]);
+  }
+}
+
+void Plugins::populateAll(Searcher* searcher) {
   FOR_l(i,plugins) {
     list_t dict = plugins[i].obj->list();  
     if(!dict.empty())

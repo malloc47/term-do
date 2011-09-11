@@ -49,6 +49,9 @@ int TermDo::handleChar(char c) {
   else if(c==127)
     // if query out of characters to backspace
     server->removeChar();
+  // C-f
+  else if(c==6)
+    server->fullList();
   
   // C-c , C-d , C-g, or time to quit
   return (c==3 || c==4 || c==7 || done);

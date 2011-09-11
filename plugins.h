@@ -30,6 +30,7 @@ public:
   Plugins(list_t);
   ~Plugins();
   void populate(Searcher*);
+  void populateAll(Searcher*);
   string getCommand();
   // list_t getTokens(void);
   // void pop();

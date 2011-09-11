@@ -22,6 +22,7 @@ public:
   bool commitToken();
   void rotateForward();
   void rotateBackward();
+  void fullList();
   string getQuery();
   string getCommand();
   list_t getMatches();

@@ -2,7 +2,7 @@
 
 Tokens::Tokens() {
   cache = new Cache<Searcher*>();
-  Searcher *s = new TST();
+  Searcher *s = new SEARCHER_t();
   cache->push(s);
 }
 Tokens::~Tokens() {delete cache;}
