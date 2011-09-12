@@ -10,6 +10,7 @@ public:
   virtual string cmd() = 0;
   virtual bool match() = 0;
   virtual string name() = 0;
+  virtual string complete() {return "";}
 };
 
 #endif

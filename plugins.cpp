@@ -75,16 +75,32 @@ void Plugins::populate(Searcher* searcher) {
 
   FOR_l(i,plugins) {
     if(exclusive && !plugins[i].obj->match()) continue;
-    list_t dict = plugins[i].obj->list();  
+    list_t dict = plugins[i].obj->list();
+    // if(dict.size()==1 && dict[0].size() > 1 && 
+    //    dict[0][0] == '%' && dict[0][dict[0].size()-1] == '%')
+    //   cross_ref.push_back(dict[0].substr(1,dict[0].size()-2));
+    // else
     if(!dict.empty())
       FOR_l(j,dict)
 	searcher->insert(dict[j]);
   }
+
+  if(exclusive)
+    FOR_l(i,plugins)
+      if(!plugins[i].obj->match() && !plugins[i].obj->complete().empty())
+	FOR_l(j,plugins)
+	  if(j!=i && !plugins[j].obj->name().compare(plugins[i].obj->complete())) {
+	    list_t dict = plugins[j].obj->list();
+	    FOR_l(j,dict)
+	      searcher->insert(dict[j]);
+	  }
 }
 
 void Plugins::populateAll(Searcher* searcher) {
   FOR_l(i,plugins) {
-    list_t dict = plugins[i].obj->list();  
+    list_t dict = plugins[i].obj->list();
+    // if(!(dict.size()==1 && dict[0].size() > 1 && 
+    // 	 dict[0][0] == '%' && dict[0][dict[0].size()-1] == '%'))
     if(!dict.empty())
       FOR_l(j,dict)
 	searcher->insert(dict[j]);

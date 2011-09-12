@@ -44,12 +44,16 @@ public:
   list_t list() {
     // return +x files on $PATH if no command has been typed yet, or if
     // its a command that takes other commands (e.g. watch)
-    if(tokens.empty() || (!tokens[0].compare("time") || 
-			  !tokens[0].compare("watch")))
+
+    // if(tokens.empty() || (!tokens[0].compare("time") || 
+    // 			  !tokens[0].compare("watch")))
       return dictionary->sort();
-    else
-      return list_t();
+
+    // else
+    //   return list_t();
   }
+
+  string complete() {return tokens.empty() ? "" : "dir";}
 
   string cmd() {
     // recognize only exec-able commands 
