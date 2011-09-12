@@ -50,8 +50,10 @@ void Server::removeChar() {
 }
 
 bool Server::commitFinalToken() {
-  if(query->getMatches().size()<=1 || query->exactMatch())
+  if(query->getMatches().size()>=1) // || query->exactMatch())
     commitValidToken();
+  else
+    commitToken();
   return (!query->getQuery().empty() || tokens->getTokens().size() > 0);
 }
 
