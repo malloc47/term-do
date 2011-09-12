@@ -68,26 +68,28 @@ bool Plugins::loadLibrary(string library) {
 }
 
 void Plugins::populate(Searcher* searcher) {
+  // exclusive means that a plugin wants a 'lock' on the matches, so
+  // that only relevant matches are shown
   bool exclusive = false;
   FOR_l(i,plugins)
     if(plugins[i].obj->match())
       exclusive = true;
 
   FOR_l(i,plugins) {
+    // if one or more plugins have requested exclusive mode, then only
+    // show those completions
     if(exclusive && !plugins[i].obj->match()) continue;
     list_t dict = plugins[i].obj->list();
-    // if(dict.size()==1 && dict[0].size() > 1 && 
-    //    dict[0][0] == '%' && dict[0][dict[0].size()-1] == '%')
-    //   cross_ref.push_back(dict[0].substr(1,dict[0].size()-2));
-    // else
     if(!dict.empty())
       FOR_l(j,dict)
 	searcher->insert(dict[j]);
   }
 
+  // if in exclusive mode, see if the plugin specifies another plugin
+  // for completion, find that plugin, and add the completions in
   if(exclusive)
     FOR_l(i,plugins)
-      if(!plugins[i].obj->match() && !plugins[i].obj->complete().empty())
+      if(plugins[i].obj->match() && !plugins[i].obj->complete().empty())
 	FOR_l(j,plugins)
 	  if(j!=i && !plugins[j].obj->name().compare(plugins[i].obj->complete())) {
 	    list_t dict = plugins[j].obj->list();
@@ -99,8 +101,6 @@ void Plugins::populate(Searcher* searcher) {
 void Plugins::populateAll(Searcher* searcher) {
   FOR_l(i,plugins) {
     list_t dict = plugins[i].obj->list();
-    // if(!(dict.size()==1 && dict[0].size() > 1 && 
-    // 	 dict[0][0] == '%' && dict[0][dict[0].size()-1] == '%'))
     if(!dict.empty())
       FOR_l(j,dict)
 	searcher->insert(dict[j]);
