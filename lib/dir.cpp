@@ -167,5 +167,5 @@ private:
   }
 };
 
-extern "C" Plugin* create_plugin() {return new Dir;}
+extern "C" Plugin* create_plugin() {return new Dir();}
 extern "C" void destroy_plugin( Plugin* plugin ) {delete plugin;}

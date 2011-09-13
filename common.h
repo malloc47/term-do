@@ -25,4 +25,6 @@ inline string assembleLine(list_t line) {
   return output;
 }
 
+extern string library_path; // should not be included by plugins
+
 #endif

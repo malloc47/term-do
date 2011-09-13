@@ -18,21 +18,9 @@ class Launcher : public Plugin {
 public:
   Launcher() {
     dictionary = new TST();
-    list_t paths = splitString(string(getenv("PATH")),':');
-    FOR_l(i,paths) {
-      DIR* dirp = opendir(paths[i].c_str());
-      struct dirent *entry;
-      struct stat st;
-      if(dirp==NULL) continue;
-      while ((entry = readdir(dirp)) != NULL) {
-	string name(entry->d_name);
-	if(stat((paths[i]+"/"+name).c_str(),&st)) continue;
-	if(S_ISREG(st.st_mode) && access((paths[i]+"/"+name).c_str(),X_OK) == 0)
-	  dictionary->insert(name);
-      }
-      closedir(dirp);
-    }
+    getExec(dictionary);
   }
+
   ~Launcher() {delete dictionary;}
 
   string name() { return "launcher";}
@@ -68,9 +56,24 @@ public:
   }
 
 private:
-  // list_t dictionary;
   TST *dictionary;
   list_t tokens;
+  void getExec(Searcher *dict) {
+    list_t paths = splitString(string(getenv("PATH")),':');
+    FOR_l(i,paths) {
+      DIR* dirp = opendir(paths[i].c_str());
+      struct dirent *entry;
+      struct stat st;
+      if(dirp==NULL) continue;
+      while ((entry = readdir(dirp)) != NULL) {
+	string name(entry->d_name);
+	if(stat((paths[i]+"/"+name).c_str(),&st)) continue;
+	if(S_ISREG(st.st_mode) && access((paths[i]+"/"+name).c_str(),X_OK) == 0)
+	  dict->insert(name);
+      }
+      closedir(dirp);
+    }
+  }
   list_t splitString(const string s, char delim) {
     list_t elems;
     stringstream ss(s);

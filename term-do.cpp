@@ -1,6 +1,7 @@
 #include "term-do.h"
 
 list_t load_plugins;
+string library_path;
 
 TermDo::TermDo() {
   view.setPrompt("/-/");
@@ -88,6 +89,8 @@ int main(int argc, char *argv[]) {
     {NULL, 0, NULL, 0}
   };
   int option_index = 0;
+
+  library_path = "~/src/projects/term-do/lib";
 
   while ((cmdargs = getopt_long(argc, argv, "l:hv",
 				long_options, &option_index)) != -1) {
