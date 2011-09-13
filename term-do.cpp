@@ -101,11 +101,11 @@ int main(int argc, char *argv[]) {
       }
       break;
     case 'h':
-      printf("Usage: %s [options] \n\
+      cout << "Usage: " << argv[0] <<  " [options] \n\
 Options: \n\
   -l,--lib                    Specify the plugins to load (comma-delimited) \n\
   -h,--help                   Display this information \n\
-  -v,--version                Display version information\n",argv[0]);
+  -v,--version                Display version information\n";
       exit(0);
       break;
     case '?':

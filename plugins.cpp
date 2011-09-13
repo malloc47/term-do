@@ -24,7 +24,7 @@ list_t Plugins::findLibraries(string dirname) {
   struct dirent *entry;
   DIR* dirp = opendir(dirname.c_str());
   if(dirp==NULL) {
-    printf("Invalid plugin directory\n");
+    cout << "\rInvalid plugin directory\n";
     return output;
   }
   while ((entry = readdir(dirp)) != NULL) {
@@ -41,14 +41,14 @@ bool Plugins::loadLibrary(string library) {
 
   plugin.handle = dlopen(library.c_str(), RTLD_LAZY);
   if (!plugin.handle) {
-    printf( "\rFailed to open library %s\n",dlerror());
+    cout << "\rFailed to open library " << dlerror() << "\n";
     return false;
   }
 
   dlerror();
   plugin.create  = (create_f) dlsym(plugin.handle, "create_plugin");
   if (dlerror()) {
-    printf("\rFailed to load \"create_plugin\" symbol");
+    cout << "\rFailed to load \"create_plugin\" symbol\n";
     dlclose(plugin.handle);
     return false;
   }
@@ -56,7 +56,7 @@ bool Plugins::loadLibrary(string library) {
   dlerror();
   plugin.destroy  = (destroy_f) dlsym(plugin.handle, "destroy_plugin");
   if (dlerror()) {
-    printf("\rFailed to load \"destroy_plugin\" symbol");
+    cout << "\rFailed to load \"destroy_plugin\" symbol\n";
     dlclose(plugin.handle);
     return false;
   }
