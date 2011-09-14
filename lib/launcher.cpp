@@ -58,16 +58,26 @@ public:
     if(command.empty())
       return dictionary->sort();
 
-    list_t output, comp = splitString(completions[command].completion,' ');
+    completion_t comp = completions[command];
+
+    list_t output, comp_l = splitString(comp.completion,' ');
     
-    FOR_l(i,comp) {
-      if(!comp[i].empty() && comp[i][0] == '_') {
-	list_t new_output = execCmd(functions[comp[i]]);
+    FOR_l(i,comp_l) {
+      if(!comp_l[i].empty() && comp_l[i][0] == '_') {
+	list_t new_output = execCmd(functions[comp_l[i]]);
         FOR_l(j,new_output) output.push_back(new_output[j]);
       }
       else
-	output.push_back(comp[i]);
+	output.push_back(comp_l[i]);
     }
+
+    if(!tokens.back().compare(command) || !comp.subcompletions.count(tokens.back()))
+      return output;
+
+    string subcomp = comp.subcompletions[tokens.back()];
+    list_t new_output = splitString(subcomp,' ');
+    // TODO: call functions here too
+    FOR_l(i,new_output) output.push_back(new_output[i]);
 
     return output;
     // else
