@@ -13,6 +13,7 @@
 #include "../tst.h"
 #include "../searcher.h"
 #include <boost/algorithm/string.hpp>
+#include "../completion.hpp"
 
 using namespace std;
 using namespace boost;
@@ -28,6 +29,44 @@ public:
     dictionary = new TST();
     getExec(dictionary);
     readConfig("launcher");
+    Completion test("git");
+    list_t test_list,test_list2,test_list3,test_list4,test_search;
+    test_list4.push_back("commit");
+    test_list.push_back("add");
+    test_search=test_list;
+    test_list2=test_list;
+    test_list.push_back("-f");
+    test_list2.push_back("-a");
+    test_list3=test_list2;
+    test_list3.push_back("hi");
+    printf("\r\nInserting 1\n");
+    test.insert(test_list);
+    printf("\r\nInserting 2\n");
+    test.insert(test_list2);
+    test.insert(test_list3);
+    test.insert(test_list4);
+    printf("\r\nSearching\n");
+    list_t output = test.search(test_search);
+    printf("\r\n-------------------------\n");
+    FOR_l(i,output) {
+      printf("\r\n%s\n",output[i].c_str());
+    }
+
+    list_t test_search2;
+    list_t output2 = test.search(test_list2);
+    printf("\r\n-------------------------\n");
+    FOR_l(i,output2) {
+      printf("\r\n%s\n",output2[i].c_str());
+    }
+
+    list_t test_search3;
+    test_search3.push_back("none");
+    test_search3.push_back("-f");
+    list_t output3 = test.search(test_search3);
+    printf("\r\n-------------------------\n");
+    FOR_l(i,output3) {
+      printf("\r\n%s\n",output3[i].c_str());
+    }
   }
 
   ~Launcher() {delete dictionary;}
