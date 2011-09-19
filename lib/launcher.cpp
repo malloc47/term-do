@@ -29,7 +29,7 @@ public:
   Launcher() {
     dictionary = new TST();
     getExec(dictionary);
-    readConfig("launcher");
+    // readConfig("launcher");
     readConfig2("launcher2");
     // Completion test("git");
     // list_t test_list,test_list2,test_list3,test_list4,test_search;
@@ -77,7 +77,12 @@ public:
 
   void update(list_t new_tokens) {tokens = new_tokens;}
 
-  bool match() {return false;}
+  bool match() {
+    FORB_l(i,tokens)
+      if(completions_new.count(tokens[i]))
+	return true;
+    return false;
+  }
 
   list_t list() {
     // return +x files on $PATH if no command has been typed yet, or if
@@ -111,7 +116,9 @@ public:
     // printf("\rNEW--------------------\n");
     // FOR_l(i,output) printf("\r%s\n",output[i].c_str());
     // printf("\r\nNEW--------------------\n");
+
     // Walk backwards through the tokens, adding each and re-searching
+    // TODO: make this non-greedy
     for(int pos=tokens.size()-2; pos>cmd_pos; pos--) {
       if(output.empty()) {
 	input.insert(input.begin(),tokens[pos]);
@@ -128,11 +135,20 @@ public:
     if(output.empty())
       output = completions_new[command]->all();
 
-    FOR_l(i,output)
+    FOR_l(i,output) {
       if(functions.count(output[i])) {
-	  output = execCmd(functions[output[i]]);
-	  break;
-	}
+	output.erase(output.begin()+i);
+	list_t new_output = execCmd(functions[output[i]]);
+	FOR_l(j,new_output) output.push_back(new_output[j]);
+	break;
+      }
+      else if(aliases.count(output[i])) {
+	output.erase(output.begin()+i);
+	list_t new_output = splitString(aliases[output[i]],' ');
+	FOR_l(j,new_output) output.push_back(new_output[j]);
+	break;
+      }
+    }
 
     return output;
 
@@ -163,7 +179,7 @@ public:
     //   return list_t();
   }
 
-  string complete() {return tokens.empty() ? "" : "dir";}
+  // string complete() {return tokens.empty() ? "" : "dir";}
 
   string cmd() {
     // recognize only exec-able commands 
@@ -192,7 +208,7 @@ private:
 	string name(entry->d_name);
 	if(stat((paths[i]+"/"+name).c_str(),&st)) continue;
 	if(S_ISREG(st.st_mode) && access((paths[i]+"/"+name).c_str(),X_OK) == 0) {
-	  dict->insert(name);
+	  dict->insert(trim(name));
 	}
       }
       closedir(dirp);
@@ -211,6 +227,7 @@ private:
   string trim(string s) {
     s.erase(s.begin(), find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(isspace))));
     s.erase(find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(), s.end());
+    s.erase(remove(s.begin(), s.end(), '\n'), s.end());
     return s;
   }
 
@@ -224,6 +241,7 @@ private:
 
   map<string,completion_t> completions;
   map<string,string> functions;
+  map<string,string> aliases;
 
   void readConfig(string filename) {
     ifstream file(filename.c_str());
@@ -281,15 +299,20 @@ private:
       // printf("\r\nLine\n");
       if(head.empty()) continue;
       if(head[0] == '_')
-	functions.insert(pair<string,string>(head,tail));
+	functions.insert(pair<string,string>(trim(head),trim(tail)));
+      else if(head[0] == '/')
+	// comment
+	continue;
+      else if(head[0] == '%')
+	aliases.insert(pair<string,string>(trim(head),trim(tail)));
       else if(head[0] != '|') {
 	cmd=trim(head);
-	printf("\r\nSetting cmd to %s\n",cmd.c_str());
+	// printf("\r\nSetting cmd to %s\n",cmd.c_str());
 	completions_new.insert(pair< string,Completion* >(cmd,new Completion(cmd)));
 	list_t line = splitString(tail,' ');
 	FOR_l(i,line) {
 	  if(line.empty()) continue;
-	  printf("\r\n%s\n",line[i].c_str());
+	  // printf("\r\n%s\n",line[i].c_str());
 	  completions_new[cmd]->insert(trim(line[i]));
 	}
 	prev_size=0;	
@@ -307,8 +330,8 @@ private:
 	}
 	// Remove stack chars from head
 	new_head = trim(head.substr(new_size));
-	printf("\r\nInserting %s\n",new_head.c_str());
-	printf("\r\nPrev:%d New: %d\n",prev_size,new_size);
+	// printf("\r\nInserting %s\n",new_head.c_str());
+	// printf("\r\nPrev:%d New: %d\n",prev_size,new_size);
 	// Stack should only grow by one
 	if(new_size > prev_size && new_size-prev_size == 1) {
 	  history.push_back(new_head);
@@ -330,9 +353,9 @@ private:
 	}
 	// History now in order, so push command
 	if(!new_head.empty()) {
-	  printf("\r\nOLD--------------------\n");
-	  FOR_l(i,history) printf("\r\n%s\n",history[i].c_str());
-	  printf("\r\nOLD--------------------\n");
+	  // printf("\r\nOLD--------------------\n");
+	  // FOR_l(i,history) printf("\r\n%s\n",history[i].c_str());
+	  // printf("\r\nOLD--------------------\n");
 	  completions_new[cmd]->insert(history);
 	}
 	// If there are any trailing commands, add them
@@ -342,9 +365,9 @@ private:
 	    if(line.empty()) continue;
 	    list_t new_entry = history;
 	    new_entry.push_back(trim(line[i]));
-	    printf("\r\nOLD--------------------\n");
-	    FOR_l(i,new_entry) printf("\r\n%s\n",new_entry[i].c_str());
-	    printf("\r\nOLD--------------------\n");
+	    // printf("\r\nOLD--------------------\n");
+	    // FOR_l(i,new_entry) printf("\r\n%s\n",new_entry[i].c_str());
+	    // printf("\r\nOLD--------------------\n");
 	    completions_new[cmd]->insert(new_entry);
 	  }
 	}
@@ -372,7 +395,7 @@ private:
     while (fgets(buffer, sizeof buffer, fpipe)) {
       string line = string(buffer);
       list_t split_line = splitString(line,' ');
-      FOR_l(i,split_line) output.push_back(split_line[i]);
+      FOR_l(i,split_line) output.push_back(trim(split_line[i]));
     }
     pclose(fpipe);
     return output;
