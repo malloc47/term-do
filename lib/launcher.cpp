@@ -272,6 +272,11 @@ private:
       string head,tail;
       getline(file,head,':');
       getline(file,tail);
+      if(head.find('\n')!=string::npos || tail.find('\n')!=string::npos) {
+	printf("\r\nLauncher config parse error!\n");
+	return;
+      }
+
       // New command
       // printf("\r\nLine\n");
       if(head.empty()) continue;
