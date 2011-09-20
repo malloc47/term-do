@@ -18,10 +18,15 @@ inline bool is_dir(string input) {
   return input[input.size()-1]=='/';
 }
 
+inline bool is_opt(string input) {
+  if(input.empty()) return false;
+  return input[input.size()-1]=='=';
+}
+
 inline string assembleLine(list_t line, unsigned int offset = 0) {
   string output = "";
   for(unsigned int i=offset; i<line.size(); i++)
-    output = output + (i==0 || is_dir(line[i-1]) ? "" : " ") + line[i];
+    output = output + (i==0 || is_dir(line[i-1]) || is_opt(line[i-1])  ? "" : " ") + line[i];
   return output;
 }
 
