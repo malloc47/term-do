@@ -17,28 +17,23 @@
 
 using namespace std;
 
-typedef struct {
-  string completion;
-  map<string,string> subcompletions;
-} completion_t;
-
 class Launcher : public Plugin {
 public:
   Launcher() {
     dictionary = new TST();
     getExec(dictionary);
-    readConfig2("launcher");
+    readConfig("launcher");
   }
 
   ~Launcher() {delete dictionary;}
 
   string name() { return "launcher";}
 
-  void update(list_t new_tokens) {tokens = new_tokens;}
+  void update(list_t new_tokens) {tokens = new_tokens; dir_complete = "";}
 
   bool match() {
     FORB_l(i,tokens)
-      if(completions_new.count(tokens[i]))
+      if(completions.count(tokens[i]))
 	return true;
     return false;
   }
@@ -50,55 +45,67 @@ public:
     string command;
     int cmd_pos = 0;
     FORB_l(i,tokens) {
-      if(completions_new.count(tokens[i])) {
+      if(completions.count(tokens[i])) {
 	command = tokens[i];
 	cmd_pos=i;
 	break;
       }
     }
 
-    if(command.empty() || !completions_new.count(command))
+    if(command.empty() || !completions.count(command))
       return dictionary->sort();
 
     list_t input;
     input.push_back(tokens.back());
     // Pull top-level completion, if it works
-    list_t output = completions_new[command]->search(input);
+    list_t output = completions[command]->search(input);
 
     // Walk backwards through the tokens, adding each and re-searching
     // TODO: make this non-greedy
     for(int pos=tokens.size()-2; pos>cmd_pos; pos--) {
       if(output.empty()) {
 	input.insert(input.begin(),tokens[pos]);
-	output = completions_new[command]->search(input);
+	output = completions[command]->search(input);
       }
     }
 
     // If /still/ empty
     if(output.empty())
-      output = completions_new[command]->all();
+      output = completions[command]->all();
 
-    FOR_l(i,output) {
-      // Add in function completions
-      if(functions.count(output[i])) {
-	output.erase(output.begin()+i);
-	list_t new_output = execCmd(functions[output[i]]);
-	FOR_l(j,new_output) output.push_back(new_output[j]);
-	break;
+    bool restart;
+    do {
+      restart = false;
+      FOR_l(i,output) {
+	// Add in function completions
+	if(functions.count(output[i])) {
+	  string to_exec = replace(replace(functions[output[i]],"$prev",tokens.back()),"$cmd",command);
+	  list_t new_output = execCmd(to_exec);
+	  output.erase(output.begin()+i);
+	  FOR_l(j,new_output) output.push_back(new_output[j]);
+	  restart=true;
+	  break;
+	}
+	// and alias completions
+	else if(aliases.count(output[i])) {
+	  list_t new_output = splitString(aliases[output[i]],' ');
+	  output.erase(output.begin()+i);
+	  FOR_l(j,new_output) output.push_back(new_output[j]);
+	  restart = true;
+	  break;
+	}
+	else if(!output[i].substr(0,4).compare("%dir")) {
+	  dir_complete=output[i].substr(1);
+	  output.erase(output.begin()+i);
+	}
       }
-      // and alias completions
-      else if(aliases.count(output[i])) {
-	output.erase(output.begin()+i);
-	list_t new_output = splitString(aliases[output[i]],' ');
-	FOR_l(j,new_output) output.push_back(new_output[j]);
-	break;
-      }
-    }
+    } while(restart);
+    
 
     return output;
   }
 
-  // string complete() {return tokens.empty() ? "" : "dir";}
+  string complete() {return dir_complete.empty() ? "" : dir_complete;}
 
   string cmd() {
     // recognize only exec-able commands 
@@ -115,7 +122,11 @@ public:
 private:
   TST *dictionary;
   list_t tokens;
-  map<string, Completion*> completions_new;
+  map<string, Completion*> completions;
+  map<string,string> functions;
+  map<string,string> aliases;
+  string dir_complete;
+
   void getExec(Searcher *dict) {
     list_t paths = splitString(string(getenv("PATH")),':');
     FOR_l(i,paths) {
@@ -137,9 +148,8 @@ private:
     list_t elems;
     stringstream ss(s);
     string item;
-    while(getline(ss,item,delim)) {
+    while(getline(ss,item,delim))
       elems.push_back(item);
-    }
     return elems;
   }
 
@@ -150,47 +160,20 @@ private:
     return s;
   }
 
+  string replace(string s, string prev, string updated) {
+    int pos = 0;
+    while((pos = s.find(prev, pos)) != string::npos) {
+      s.replace(pos, prev.length(), updated);
+      pos += updated.length();
+    }
+    return s;
+  }
+
   bool is_cmd(string input) {
     return dictionary->search(input);
   }
 
-  map<string,completion_t> completions;
-  map<string,string> functions;
-  map<string,string> aliases;
-
   void readConfig(string filename) {
-    ifstream file(filename.c_str());
-    if(!file.is_open()) return;
-    while(!file.eof()) {
-      string head, tail;
-      getline(file,head,':');
-      head=trim(head);
-      getline(file,tail);
-      tail=trim(tail);
-      
-      // function entry
-      if(!head.empty() && head[0] == '_') {
-	functions.insert(pair<string,string>(head,tail));
-      }
-      // first completion entry
-      else if(!completions.count(head)) {
-	completion_t completion;
-	completion.completion=tail;
-	completions.insert(pair<string,completion_t>(head,completion));
-      }
-      // "switch" completion entry specifying the parameters of the switch
-      else {
-	list_t line = splitString(tail,' ');
-	string first = line.front();
-	string rest = assembleLine(line,1);
-	first=trim(first);
-	rest=trim(rest);
-	completions[head].subcompletions.insert(pair<string,string>(first,rest));
-      }
-    }
-    file.close();
-  }
-  void readConfig2(string filename) {
     ifstream file(filename.c_str());
     if(!file.is_open()) return;
     string cmd;
@@ -215,12 +198,13 @@ private:
       else if(head[0] == '%')
 	aliases.insert(pair<string,string>(trim(head),trim(tail)));
       else if(head[0] != '|') {
+	list_t heads = splitString(head,' ');
 	cmd=trim(head);
-	completions_new.insert(pair< string,Completion* >(cmd,new Completion(cmd)));
+	completions.insert(pair< string,Completion* >(cmd,new Completion(cmd)));
 	list_t line = splitString(tail,' ');
 	FOR_l(i,line) {
 	  if(line.empty()) continue;
-	  completions_new[cmd]->insert(trim(line[i]));
+	  completions[cmd]->insert(trim(line[i]));
 	}
 	prev_size=0;	
 	history.clear();
@@ -257,7 +241,7 @@ private:
 	}
 	// History now in order, so push command
 	if(!new_head.empty()) {
-	  completions_new[cmd]->insert(history);
+	  completions[cmd]->insert(history);
 	}
 	// If there are any trailing commands, add them
 	if(!tail.empty()) {
@@ -266,7 +250,7 @@ private:
 	    if(line.empty()) continue;
 	    list_t new_entry = history;
 	    new_entry.push_back(trim(line[i]));
-	    completions_new[cmd]->insert(new_entry);
+	    completions[cmd]->insert(new_entry);
 	  }
 	}
 	prev_size = new_size;

@@ -37,7 +37,7 @@ public:
     else { // this case may not be obvious, so here goes...
       // look at the last token to see if we're completing a directory
       // (if not, just show pwd)
-      if(!isdir(tokens[tokens.size()-1])) return base_list();
+      if(!is_dir(tokens[tokens.size()-1])) return base_list();
       string listing="";
     
       // * walk *backwards* through the list to find the "first"
@@ -51,7 +51,7 @@ public:
       //   and setting "start" to be its index
       unsigned int start = tokens.size()-1;
       for(;start>0;start--)
-	if(!isdir(tokens[start-1]))
+	if(!is_dir(tokens[start-1]))
 	  break;
 
       // now walk from the starting directory token (e.g. second/) to
@@ -71,25 +71,19 @@ public:
     return list_t();
   }
 
-  // helper plugins should generally not complete commands, but a useful
-  // utility function is to change directories if there isn't any other
-  // possible course of action (and its highly unlikey for this to
-  // confict with any other plugins)
-  string cmd() {
-    // string output = "";
-    // FOR_l(i,tokens)
-    //   output = output + tokens[i];
-    // printf("\r\n%s is %d\n",output.c_str(),valid_dir(output));
-    // return valid_dir(output) ? "cd " + output : "";
+  string cmd() {return "";}
 
-    //stupid me: cd-ing in child process buys us nothing, so don't bother
-    return "";
+  list_t list(string in) {
+    if(in.empty()) filters.clear();
+    else filters = splitString(in,',');
+    return list();
   }
 
 private: 
   list_t tokens;
   string PWD;
   string HOME;
+  list_t filters;
   bool valid_dir(string dir){
     struct stat entry;
     return !(stat(dir.c_str(), &entry) < 0) && S_ISDIR(entry.st_mode);
@@ -100,7 +94,7 @@ private:
     return !(stat(file.c_str(), &entry) < 0) && S_ISREG(entry.st_mode);
   }
 
-  bool isdir(string token) {return token[token.size()-1]=='/';}
+  // bool isdir(string token) {return token[token.size()-1]=='/';}
 
   list_t ls_d(string path) {
     list_t output;
@@ -113,8 +107,9 @@ private:
       if(!name.compare(".") || !name.compare("..")) continue;
       struct stat st;
       if(stat((path+"/"+name).c_str(),&st)) continue;
-      if(S_ISDIR(st.st_mode))
+      if(S_ISDIR(st.st_mode)) {
 	output.push_back(string(file->d_name)+"/");
+      }
     }
     closedir(dirp);
     if(path.compare("/"))
@@ -133,8 +128,16 @@ private:
       string name(file->d_name);
       struct stat st;
       if(stat((path+"/"+name).c_str(),&st)) continue;
-      if(S_ISREG(st.st_mode))
-	output.push_back(string(file->d_name));
+      if(S_ISREG(st.st_mode)) {
+	if(filters.empty())
+	  output.push_back(string(file->d_name));
+	else
+	  FOR_l(i,filters)
+	    if(string(file->d_name).find(filters[i]) !=string::npos) {
+	      output.push_back(string(file->d_name));
+	      break;
+	    }
+      }
     }
     closedir(dirp);
     return output;
@@ -150,8 +153,17 @@ private:
       string name(file->d_name);
       struct stat st;
       if(stat((path+"/"+name).c_str(),&st)) continue;
-      if(S_ISREG(st.st_mode) && access((path+"/"+name).c_str(),X_OK) == 0)
+      if(S_ISREG(st.st_mode) && access((path+"/"+name).c_str(),X_OK) == 0) {
+	if(filters.empty())
+	  output.push_back(string(file->d_name));
+	else
+	  FOR_l(i,filters)
+	    if(string(file->d_name).find(filters[i]) !=string::npos) {
+	      output.push_back(string(file->d_name));
+	      break;
+	    }
 	output.push_back(string(file->d_name));
+      }
     }
     closedir(dirp);
     return output;
@@ -164,6 +176,15 @@ private:
     output.push_back("/");
     output.push_back("~/");
     return output;
+  }
+
+  list_t splitString(const string s, char delim) {
+    list_t elems;
+    stringstream ss(s);
+    string item;
+    while(getline(ss,item,delim))
+      elems.push_back(item);
+    return elems;
   }
 };
 

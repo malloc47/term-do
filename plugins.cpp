@@ -89,13 +89,26 @@ void Plugins::populate(Searcher* searcher) {
   // for completion, find that plugin, and add the completions in
   if(exclusive)
     FOR_l(i,plugins)
-      if(plugins[i].obj->match() && !plugins[i].obj->complete().empty())
+      if(plugins[i].obj->match() && !plugins[i].obj->complete().empty()) {
+	string comp = plugins[i].obj->complete();
+	string name;
+	// Allow "arguments" from one plugin to another
+	string arg = "";
+	if(comp.find(':') != string::npos) {
+	  stringstream ss(comp);
+	  getline(ss,name,':');
+	  getline(ss,arg);
+	}
+	else {
+	  name = comp;
+	}
 	FOR_l(j,plugins)
-	  if(j!=i && !plugins[j].obj->name().compare(plugins[i].obj->complete())) {
-	    list_t dict = plugins[j].obj->list();
+	  if(j!=i && !plugins[j].obj->name().compare(name)) {
+	    list_t dict = plugins[j].obj->list(arg);
 	    FOR_l(j,dict)
 	      searcher->insert(dict[j]);
 	  }
+      }
 }
 
 void Plugins::populateAll(Searcher* searcher) {
