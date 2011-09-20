@@ -131,6 +131,10 @@ Options: \n\
     command = term_logic.loopDo();
   }
   
-  if(!command.empty())
+  if(!command.empty()) {
     system(command.c_str());
+    // add command to bash history
+    // system(("bash -c \"history -s " + command + "\"").c_str());
+  }
+
 }
