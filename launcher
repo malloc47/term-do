@@ -1,5 +1,6 @@
 _parse_man_page_opts :  zcat $(man -w $cmd ) | grep -o '\\-[a-zA-Z0-9\-][a-zA-Z0-9\-]*' | tr -d '\\'
 _parse_help : $cmd --help 2>&1 | egrep -o '\-+[[:alnum:]]+'
+_parse_h : $cmd -h 2>&1 | egrep -o '\-+[[:alnum:]]+'
 _git_list : for j in $(for i in $(git help -a | egrep '^  [a-zA-Z0-9]') ; do echo "$i " ; done | grep -v '\-\-') ; do echo -n "$j " ; done
 _git_alias : git config --get-regexp 'alias\.*' | grep -o '\.[a-zA-Z0-9] ' | cut -c 2-
 %git_whitespacelist : nowarn warn error error-all fix
@@ -189,7 +190,7 @@ mplayer: _mplayer_options %dir:.mpg,.mpeg,.MPG,.MPEG,.wmv,.wma,.WMV,.WMA,.avi,.A
 |-af : resample resample= channels channels= format format= volume volume= delay delay= pan pan= sub sub= surround surround=
 |-af-adv : force= list=
 |-noconfig : all gui system user
-vim : _parse_help
+vim : _parse_h
 lsusb : _parse_help
 bash : _parse_help
 /tar : %dir:
