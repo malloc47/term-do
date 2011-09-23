@@ -5,6 +5,7 @@
 #include "searcher.h"
 #include "tst.h"
 #include "tst-line.h"
+#include "history.h"
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -40,6 +41,7 @@ private:
   // operatons when backspacing characters
   stack< list_t > history;
   list_t tokens;
+  History sorter; // really bad naming, huh?
 };
 
 #endif

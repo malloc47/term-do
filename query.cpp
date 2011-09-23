@@ -1,6 +1,6 @@
 #include "query.h"
 
-Query::Query(Searcher *s) {
+Query::Query(Searcher *s) : sorter("/home/malloc47/.bash_history") {
   query="";
   searcher = s;
 }
@@ -12,11 +12,12 @@ Query::~Query() {
 // Oh why can't we have the typesafe haven of Haskell's Maybe monad...
 list_t Query::getMatches() {
   if(history.empty()) {
-    list_t candidates = searcher->searchp(query);
+    list_t unsorted_candidates = searcher->searchp(query);
+    list_t candidates = sorter.getSorted(unsorted_candidates);
     if(!candidates.empty())
       history.push(candidates);
     else {
-      return candidates; // An empty vector output
+      return list_t(); // An empty vector output
     }
   }
   return history.top();
@@ -42,7 +43,9 @@ bool Query::exactMatch() {
 
 void Query::addChar(char c) {
   query += c;
-  history.push(searcher->searchp(query));
+  list_t unsorted_candidates = searcher->searchp(query);
+  list_t candidates = sorter.getSorted(unsorted_candidates);
+  history.push(candidates);
 }
 
 bool Query::removeChar() {

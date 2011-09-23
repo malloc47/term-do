@@ -79,6 +79,8 @@ string TermDo::loopDo() {
     return cmd;
 }
 
+#include "history.h"
+
 int main(int argc, char *argv[]) {
 
   int cmdargs;
