@@ -40,7 +40,7 @@ private:
   // which is a space for time tradeoff that reduce number of search
   // operatons when backspacing characters
   stack< list_t > history;
-  list_t tokens;
+  list_t empty;
   History sorter; // really bad naming, huh?
 };
 

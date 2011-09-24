@@ -11,7 +11,7 @@ History::History(string filename) {
     split(line," \\:;/'\"|*`.<>\n",split_line);
     FOR_l(i,split_line) {
       string token = split_line[i];
-      downcase(token);
+      transform(token.begin(),token.end(),token.begin(),::tolower);
       if(!token.compare("-") || !token.compare("--")) continue;
       if(freq.count(token))
 	freq[token]++;

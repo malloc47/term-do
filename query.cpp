@@ -18,7 +18,7 @@ list_t& Query::getMatches() {
       history.push(candidates);
     else {
       // BAD: pass in vector to fill instead
-      return empty_list; // An empty vector output
+      return empty; // An empty vector output
     }
   }
   return history.top();
