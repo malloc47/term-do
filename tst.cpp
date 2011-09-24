@@ -4,11 +4,13 @@ TST::TST() {root=0;}
 TST::~TST() {cleanup(root);}
 
 bool TST::search(string s) {
+  transform(s.begin(),s.end(),s.begin(),::tolower);
   if(s.empty()) return false;
   TSTp p = root;
   unsigned int pos = 0;
   while(p) {
-    char c = downcase(pos < s.length() ? s[pos] : 0);
+    // char c = downcase(pos < s.length() ? s[pos] : 0);
+    char c = (pos < s.length() ? s[pos] : 0);
     if(c < p->val)
       p=p->left;
     else if(c == p->val) {
@@ -93,10 +95,15 @@ void TST::searchh(TSTp p, string *s, unsigned int pos, int d, list_t *output) {
     searchh(p->right,s,pos,d,output);
 }
 
-void TST::insert(string s) {root = insert(root,&s,0);}
+void TST::insert(string s) {
+  // Use this instead of downcase() to reduce amount of work
+  transform(s.begin(),s.end(),s.begin(),::tolower);
+  root = insert(root,&s,0);
+}
 TSTp TST::insert(TSTp p, string *s, unsigned int pos) {
   if(s->empty()) return p;
-  char c = downcase(pos < s->length() ? s->at(pos) : 0);
+  // char c = downcase(pos < s->length() ? s->at(pos) : 0);
+  char c = (pos < s->length() ? s->at(pos) : 0);
   if(!p) p = new TSTNode(c);
   if(c < p->val)
     p->left = insert(p->left,s,pos);

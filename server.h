@@ -23,10 +23,10 @@ public:
   void rotateForward();
   void rotateBackward();
   void fullList();
-  string getQuery();
+  string& getQuery();
   string getCommand();
-  list_t getMatches();
-  list_t getTokens();
+  list_t& getMatches();
+  list_t& getTokens();
 
 private:
   void addToken(string);

@@ -27,7 +27,7 @@ typedef struct {
 class Plugins {
 public:
   Plugins();
-  Plugins(list_t);
+  Plugins(list_t&);
   ~Plugins();
   void populate(Searcher*);
   void populateAll(Searcher*);

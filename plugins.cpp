@@ -6,7 +6,7 @@ Plugins::Plugins() {
       loadLibrary("./lib/" + libraries[i]);
 }
 
-Plugins::Plugins(list_t libraries) {
+Plugins::Plugins(list_t &libraries) {
   FOR_l(i,libraries)
       loadLibrary("./lib/" + libraries[i]+".so");
 }

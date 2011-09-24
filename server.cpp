@@ -81,9 +81,9 @@ bool Server::commitToken() {
   return true;
 }
 
-string Server::getQuery() {return query->getQuery();}
-list_t Server::getMatches() {return query->getMatches();}
-list_t Server::getTokens() {return tokens->getTokens();}
+string& Server::getQuery() {return query->getQuery();}
+list_t& Server::getMatches() {return query->getMatches();}
+list_t& Server::getTokens() {return tokens->getTokens();}
 string Server::getCommand() {return plugins->getCommand();}
 void Server::rotateForward() {query->rotateForward();}
 void Server::rotateBackward() {query->rotateBackward();}

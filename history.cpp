@@ -23,6 +23,7 @@ History::History(string filename) {
 
 list_t History::getSorted(list_t& strings) {
   list_t output;
+  output.reserve(strings.size()+1);
   freq_list_t freqs = getFrequency(strings);
   sort(freqs.begin(),freqs.end(),greater< pair<int,string> >());
   FOR_l(i,freqs)
@@ -32,6 +33,7 @@ list_t History::getSorted(list_t& strings) {
 
 freq_list_t History::getFrequency(list_t& strings) {
   freq_list_t output;
+  output.reserve(strings.size()+1);
   FOR_l(i,strings) {
     if(freq.count(strings[i]))
       output.push_back(pair<int,string>(freq[strings[i]],strings[i]));

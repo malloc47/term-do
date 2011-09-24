@@ -5,7 +5,7 @@ View::~View() {}
 void View::init() {}
 void View::setPrompt(string prompt) {this->prompt = prompt;}
 
-string View::formatList(list_t list, const string d1, const string sep, const string d2) {
+string View::formatList(list_t &list, const string d1, const string sep, const string d2) {
   string output = "";
   if(list.empty()) return output;
   FOR_l(i,list)
@@ -13,7 +13,7 @@ string View::formatList(list_t list, const string d1, const string sep, const st
   return d1 + output + d2;
 }
 
-string View::formatList(list_t list, const string d1, const string sep, const string d2,const unsigned int length) { 
+string View::formatList(list_t &list, const string d1, const string sep, const string d2,const unsigned int length) { 
   string output = "";
   if(list.empty()) return output;
   if(list.size()==1 && list.front().size()==0) return output;
@@ -41,7 +41,7 @@ list_t View::chopList(list_t list, const string prefix) {
   return list;
 }
 
-void View::refreshLine(string query, list_t matches, list_t tokens) {
+void View::refreshLine(string &query, list_t &matches, list_t &tokens) {
   clearLine();
   string output = formatList(tokens,"["," ","]") + " ";
   unsigned int len = getWidth()*2/3;
@@ -50,10 +50,24 @@ void View::refreshLine(string query, list_t matches, list_t tokens) {
   output = prompt + output + query;
   *this << output.c_str();
   pushCursor();
-  string match_str = formatList(chopList(matches,
-					 query),
+  list_t chopped = chopList(matches, query);
+  string match_str = formatList(chopped,
 				"{"," | ","}",
 				getWidth() - output.length());  
   *this << match_str.substr(0,getWidth() - output.length()).c_str();
   popCursor();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

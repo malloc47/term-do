@@ -46,7 +46,7 @@ public:
       output.push_back(root->children[i]->data);
     return output;
   }
-  vector<string> search(vector<string> data) {
+  vector<string> search(vector<string> &data) {
     // printf("\r\nCompletion Searching\n");
     vector<string> output;
     CompletionNode *node = root;
@@ -77,7 +77,6 @@ public:
   }
 
 private:
-
   class CompletionNode {
   public:
     CompletionNode(string new_data) {data=new_data;}

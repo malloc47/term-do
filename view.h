@@ -15,12 +15,12 @@ public:
   View();
   ~View();
   void setPrompt(string);
-  void refreshLine(string,list_t,list_t);
+  void refreshLine(string&,list_t&,list_t&);
 
 private:
   void init();
-  string formatList(list_t,const string,const string,const string);
-  string formatList(list_t,const string,const string,const string,const unsigned int);
+  string formatList(list_t&,const string,const string,const string);
+  string formatList(list_t&,const string,const string,const string,const unsigned int);
   list_t chopList(list_t,const string);
   string prompt;
 };

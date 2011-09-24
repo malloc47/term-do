@@ -20,7 +20,7 @@ class Tokens{
 public: 
   Tokens();
   ~Tokens();
-  list_t getTokens();
+  list_t& getTokens();
   Searcher* push(string);
   Searcher* pop();
   Searcher* getSearcher();

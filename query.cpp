@@ -10,14 +10,15 @@ Query::~Query() {
 }
 // The output of this can turn into segfault city if you're not careful
 // Oh why can't we have the typesafe haven of Haskell's Maybe monad...
-list_t Query::getMatches() {
+list_t& Query::getMatches() {
   if(history.empty()) {
     list_t unsorted_candidates = searcher->searchp(query);
     list_t candidates = sorter.getSorted(unsorted_candidates);
     if(!candidates.empty())
       history.push(candidates);
     else {
-      return list_t(); // An empty vector output
+      // BAD: pass in vector to fill instead
+      return history.top(); // An empty vector output
     }
   }
   return history.top();
@@ -57,7 +58,7 @@ bool Query::removeChar() {
   return false;
 }
 
-string Query::getQuery() {return query;}
+string& Query::getQuery() {return query;}
 
 void Query::rotateForward() {
   if(history.top().size()<2) return;

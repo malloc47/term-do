@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 #include "searcher.h"
 #include "common.h"
 

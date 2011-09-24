@@ -7,7 +7,7 @@ Tokens::Tokens() {
 }
 Tokens::~Tokens() {delete cache;}
 
-list_t Tokens::getTokens() {return tokens;}
+list_t& Tokens::getTokens() {return tokens;}
 
 Searcher* Tokens::push(string token) {
   tokens.push_back(token);

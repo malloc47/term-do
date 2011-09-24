@@ -24,10 +24,10 @@ public:
   void addChar(char);
   // void insert(string); // stub until we start passing around TSTs instead of matcher
   bool removeChar();
-  list_t getMatches();
+  list_t& getMatches();
   string getMatch();
   bool exactMatch();
-  string getQuery();
+  string& getQuery();
   void rotateForward();
   void rotateBackward();
   void reset(Searcher*);

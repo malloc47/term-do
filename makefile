@@ -1,6 +1,6 @@
 EXEC = term-do 
 CXX = g++
-CCFLAGS = -Wall
+CCFLAGS = -Wall -O3
 LDFLAGS = -ldl
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)

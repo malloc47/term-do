@@ -1,5 +1,5 @@
 CXX = g++
-CCFLAGS = -Wall -fPIC # -g -ggdb
+CCFLAGS = -Wall -fPIC -O3 # -g -ggdb
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 EXEC = $(SOURCES:.cpp=.so)
