@@ -70,8 +70,13 @@ public:
     }
 
     // If /still/ empty
-    if(output.empty())
+    if(output.empty()) {
       output = completions[command]->all();
+      // show files too, if there is more than one token (first token
+      // is command, so only accept whatever that command takes, by
+      // default)
+      if(tokens.size() > 1) output.push_back("%dir");
+    }
 
     bool restart;
     do {
@@ -100,7 +105,6 @@ public:
 	}
       }
     } while(restart);
-    
 
     return output;
   }
