@@ -81,6 +81,12 @@ bool Server::commitToken() {
   return true;
 }
 
+void Server::reset() {
+  tokens->reset();
+  query->reset(tokens->getSearcher());
+  plugins->update(tokens->getTokens());
+}
+
 string& Server::getQuery() {return query->getQuery();}
 list_t& Server::getMatches() {return query->getMatches();}
 list_t& Server::getTokens() {return tokens->getTokens();}

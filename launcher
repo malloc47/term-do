@@ -40,7 +40,7 @@ git: _git_list _git_alias
 ||--reedit-message=:_git_refs
 ||--untracked-files=:all no normal
 |describe:--all --tags --contains --abbrev= --candidates= --exact-match --debug --long --match --always _git_refs
-|diff:--cached --staged --pickaxe-all --pickaxe-regex --base --ours --theirs --no-index --stat --numstat --shortstat --summary --patch-with-stat --name-only --name-status --color --no-color --color-words --no-renames --check --full-index --binary --abbrev --diff-filter= --find-copies-harder --text --ignore-space-at-eol --ignore-space-change --ignore-all-space --exit-code --quiet --ext-diff --no-ext-diff --no-prefix --src-prefix= --dst-prefix= --inter-hunk-context= --patience --raw --dirstat --dirstat= --dirstat-by-file --dirstat-by-file= --cumulative
+|diff:--cached --staged --pickaxe-all --pickaxe-regex --base --ours --theirs --no-index --stat --numstat --shortstat --summary --patch-with-stat --name-only --name-status --color --no-color --color-words --no-renames --check --full-index --binary --abbrev --diff-filter= --find-copies-harder --text --ignore-space-at-eol --ignore-space-change --ignore-all-space --exit-code --quiet --ext-diff --no-ext-diff --no-prefix --src-prefix= --dst-prefix= --inter-hunk-context= --patience --raw --dirstat --dirstat= --dirstat-by-file --dirstat-by-file= --cumulative %dir
 |difftool:--cached --staged --pickaxe-all --pickaxe-regex --base --ours --theirs --no-renames --diff-filter= --find-copies-harder --relative --ignore-submodules --tool= %dir
 ||--tool=:diffuse ecmerge emerge kdiff3 meld opendiff tkdiff vimdiff gvimdiff xxdiff araxis p4merge bc3 kompare
 |fetch:--quiet --verbose --append --upload-pack --force --keep --depth= --tags --no-tags --all --prune --dry-run

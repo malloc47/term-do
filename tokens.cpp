@@ -24,3 +24,5 @@ Searcher* Tokens::pop() {
   return cache->top();
 }
 Searcher* Tokens::getSearcher() {return cache->top();}
+
+void Tokens::reset() {while(!tokens.empty()) pop();}

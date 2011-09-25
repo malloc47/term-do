@@ -24,9 +24,7 @@ public:
   Searcher* push(string);
   Searcher* pop();
   Searcher* getSearcher();
-  // bool commitToken(string);
-  // bool commitValidToken(string);
-  // bool commitFinalToken(string);
+  void reset();
 
 private:
   Cache<Searcher*>* cache;

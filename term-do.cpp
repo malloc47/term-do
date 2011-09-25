@@ -4,8 +4,7 @@ list_t load_plugins;
 string library_path;
 
 TermDo::TermDo() {
-  view = new View();
-  view->setPrompt("/-/");
+  view = new View("/-/");
   server = new Server(load_plugins);
   view->refreshLine(server->getQuery(),server->getMatches(),server->getTokens());
 }
@@ -85,7 +84,12 @@ void TermDo::run(string cmd) {
   view->clearLine();
   delete view;
   if(!cmd.empty()) system(cmd.c_str());
-  view = new View();
+  view = new View("/-/");
+}
+
+void TermDo::reset() {
+  server->reset();
+  view->refreshLine(server->getQuery(),server->getMatches(),server->getTokens());
 }
 
 #include "history.h"
@@ -142,8 +146,9 @@ Options: \n\
   string command;
 
   if(console) {
+    TermDo term_logic;
     do {
-      TermDo term_logic;
+      term_logic.reset();
       command = term_logic.loopDo();
       term_logic.run(command);
     } while(!command.empty());

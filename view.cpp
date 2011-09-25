@@ -1,8 +1,8 @@
 #include "view.h"
 
-View::View() {prompt=""; init();}
+View::View() {prompt="";}
+View::View(string pmt) {prompt=pmt;}
 View::~View() {}
-void View::init() {}
 void View::setPrompt(string prompt) {this->prompt = prompt;}
 
 string View::formatList(list_t &list, const string d1, const string sep, const string d2) {

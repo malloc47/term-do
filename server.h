@@ -27,6 +27,7 @@ public:
   string getCommand();
   list_t& getMatches();
   list_t& getTokens();
+  void reset();
 
 private:
   void addToken(string);

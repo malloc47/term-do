@@ -22,6 +22,7 @@ public:
   ~TermDo();
   string loopDo();
   void run(string);
+  void reset();
 
 private:
   void init();
