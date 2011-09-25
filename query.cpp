@@ -8,8 +8,7 @@ Query::Query(Searcher *s) : sorter("/home/malloc47/.bash_history") {
 Query::~Query() {
   // DON'T DELETE searcher HERE
 }
-// The output of this can turn into segfault city if you're not careful
-// Oh why can't we have the typesafe haven of Haskell's Maybe monad...
+
 list_t& Query::getMatches() {
   if(history.empty()) {
     list_t unsorted_candidates = searcher->searchp(query);
@@ -17,7 +16,7 @@ list_t& Query::getMatches() {
     if(!candidates.empty())
       history.push(candidates);
     else {
-      // BAD: pass in vector to fill instead
+      // TODO: something better here
       return empty; // An empty vector output
     }
   }
