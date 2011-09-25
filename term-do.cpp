@@ -4,14 +4,16 @@ list_t load_plugins;
 string library_path;
 
 TermDo::TermDo() {
-  view.setPrompt("/-/");
+  view = new View();
+  view->setPrompt("/-/");
   server = new Server(load_plugins);
-  view.refreshLine(server->getQuery(),server->getMatches(),server->getTokens());
+  view->refreshLine(server->getQuery(),server->getMatches(),server->getTokens());
 }
 
 TermDo::~TermDo() {
-  view.clearLine(); 
+  view->clearLine(); 
   delete server;
+  delete view;
 }
 
 int TermDo::handleChar(char c) {
@@ -61,8 +63,8 @@ int TermDo::handleChar(char c) {
 string TermDo::loopDo() {
   int done=0;
   while(!done) {
-    done = handleChar(view.getChar());
-    view.refreshLine(server->getQuery(),server->getMatches(),server->getTokens());
+    done = handleChar(view->getChar());
+    view->refreshLine(server->getQuery(),server->getMatches(),server->getTokens());
   }
 
   // assume a terminal-executable command if no match is found--useful
@@ -79,12 +81,21 @@ string TermDo::loopDo() {
     return cmd;
 }
 
+void TermDo::run(string cmd) {
+  view->clearLine();
+  delete view;
+  if(!cmd.empty()) system(cmd.c_str());
+  view = new View();
+}
+
 #include "history.h"
 
 int main(int argc, char *argv[]) {
 
   int cmdargs;
+  bool console=false;
   static struct option long_options[] = {
+    {"console", 1, 0, 'c'},
     {"lib", 1, 0, 'l'},
     {"help", 0, 0, 'h'},
     {"version", 0, 0, 'v'},
@@ -94,9 +105,12 @@ int main(int argc, char *argv[]) {
 
   library_path = "~/src/projects/term-do/lib";
 
-  while ((cmdargs = getopt_long(argc, argv, "l:hv",
+  while ((cmdargs = getopt_long(argc, argv, "cl:hv",
 				long_options, &option_index)) != -1) {
     switch (cmdargs) {
+    case 'c':
+      console=true;
+      break;
     case 'l':
       {
 	stringstream ss(optarg);
@@ -108,6 +122,7 @@ int main(int argc, char *argv[]) {
     case 'h':
       cout << "Usage: " << argv[0] <<  " [options] \n\
 Options: \n\
+  -c,--console                Use as console (don't exit after <Enter> \n\
   -l,--lib                    Specify the plugins to load (comma-delimited) \n\
   -h,--help                   Display this information \n\
   -v,--version                Display version information\n";
@@ -124,19 +139,21 @@ Options: \n\
   //     framenum = atoi(argv[optind++]);
   // }
 
-
   string command;
 
-  // like this so TermDo's destructor is called
-  {
-    TermDo term_logic;
-    command = term_logic.loopDo();
+  if(console) {
+    do {
+      TermDo term_logic;
+      command = term_logic.loopDo();
+      term_logic.run(command);
+    } while(!command.empty());
+  }
+  else {
+      TermDo term_logic;
+      command = term_logic.loopDo();
+      term_logic.run(command);
   }
   
-  if(!command.empty()) {
-    system(command.c_str());
     // add command to bash history
     // system(("bash -c \"history -s " + command + "\"").c_str());
-  }
-
 }

@@ -21,14 +21,13 @@ public:
   TermDo();
   ~TermDo();
   string loopDo();
+  void run(string);
 
 private:
   void init();
   void cleanup();
   int handleChar(char);
-  bool commitValidToken();
-  bool commitToken();
-  class View view;
+  class View *view;
   class Server *server;
 };
 
