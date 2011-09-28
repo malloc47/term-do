@@ -11,6 +11,7 @@ _git_heads : bash -c "source /etc/bash_completion ; __git_heads"
 _git_remotes : bash -c "source /etc/bash_completion ; __git_remotes"
 _git_aliases : bash -c "source /etc/bash_completion __git_aliases"
 _git_stash : git stash list | sed -n -e 's/:.*//p'
+_git_deleted : git status -s | grep ^[[:space:]]*D | awk '{print $2}'
 git: _git_list _git_alias
 |am: --3way --committer-date-is-author-date --ignore-date --ignore-whitespace --ignore-space-change --interactive --keep --no-utf8 --signoff --utf8 --whitespace= --scissors
 ||--whitespace=:%git_whitespacelist
@@ -93,7 +94,7 @@ git: _git_list _git_alias
 |replace: _git_refs
 |reset:--merge --mixed --hard --soft --patch _git_refs
 |revert:--edit --mainline --no-edit --no-commit --signoff _git_refs
-|rm:--cached --dry-run --ignore-unmatch --quiet
+|rm:--cached --dry-run --ignore-unmatch --quiet _git_deleted %dir
 |show:--pretty= --format= --abbrev-commit --oneline %dir
 ||--pretty=:oneline short medium full fuller email raw format:
 ||--format=:oneline short medium full fuller email raw format:

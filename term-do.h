@@ -1,5 +1,5 @@
-#ifndef SERVER_H_
-#define SERVER_H_
+#ifndef TERMDO_H_
+#define TERMDO_H_
 
 #include "common.h"
 #include "query.h"
@@ -10,11 +10,11 @@
 #include <vector>
 #include <stack>
 
-class Server {
+class TermDo {
 public:
-  Server();
-  Server(list_t);
-  ~Server();
+  TermDo();
+  TermDo(list_t);
+  ~TermDo();
   void addChar(char);
   void removeChar();
   bool commitFinalToken();

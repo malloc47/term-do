@@ -5,7 +5,7 @@ string library_path;
 
 Standalone::Standalone() {
   view = new View("/-/");
-  server = new Server(load_plugins);
+  server = new TermDo(load_plugins);
   view->refreshLine(server->getQuery(),server->getMatches(),server->getTokens());
 }
 
