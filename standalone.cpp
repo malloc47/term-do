@@ -1,21 +1,21 @@
-#include "term-do.h"
+#include "standalone.h"
 
 list_t load_plugins;
 string library_path;
 
-TermDo::TermDo() {
+Standalone::Standalone() {
   view = new View("/-/");
   server = new Server(load_plugins);
   view->refreshLine(server->getQuery(),server->getMatches(),server->getTokens());
 }
 
-TermDo::~TermDo() {
+Standalone::~Standalone() {
   view->clearLine(); 
   delete server;
   delete view;
 }
 
-int TermDo::handleChar(char c) {
+int Standalone::handleChar(char c) {
   bool done = false;
 
   // standard character range
@@ -59,7 +59,7 @@ int TermDo::handleChar(char c) {
   return (c==3 || c==4 || c==7 || done);
 }
 
-string TermDo::loopDo() {
+string Standalone::loopDo() {
   int done=0;
   while(!done) {
     done = handleChar(view->getChar());
@@ -80,14 +80,14 @@ string TermDo::loopDo() {
     return cmd;
 }
 
-void TermDo::run(string cmd) {
+void Standalone::run(string cmd) {
   view->clearLine();
   delete view;
   if(!cmd.empty()) system(cmd.c_str());
   view = new View("/-/");
 }
 
-void TermDo::reset() {
+void Standalone::reset() {
   server->reset();
   view->refreshLine(server->getQuery(),server->getMatches(),server->getTokens());
 }
@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
     case 'h':
       cout << "Usage: " << argv[0] <<  " [options] \n\
 Options: \n\
-  -c,--console                Use as console (don't exit after <Enter> \n\
+  -c,--console                Use as console (don't exit after <Enter>) \n\
   -l,--lib                    Specify the plugins to load (comma-delimited) \n\
   -h,--help                   Display this information \n\
   -v,--version                Display version information\n";
@@ -146,7 +146,7 @@ Options: \n\
   string command;
 
   if(console) {
-    TermDo term_logic;
+    Standalone term_logic;
     do {
       term_logic.reset();
       command = term_logic.loopDo();
@@ -154,7 +154,7 @@ Options: \n\
     } while(!command.empty());
   }
   else {
-      TermDo term_logic;
+      Standalone term_logic;
       command = term_logic.loopDo();
       term_logic.run(command);
   }

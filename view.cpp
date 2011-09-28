@@ -57,17 +57,3 @@ void View::refreshLine(string &query, list_t &matches, list_t &tokens) {
   *this << match_str.substr(0,getWidth() - output.length()).c_str();
   popCursor();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

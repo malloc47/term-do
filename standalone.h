@@ -1,5 +1,5 @@
-#ifndef TERMDO_H_
-#define TERMDO_H_
+#ifndef STANDALONE_H_
+#define STANDALONE_H_
 
 #include "common.h"
 #include "vt100.h"
@@ -16,10 +16,10 @@
 
 using namespace std;
 
-class TermDo {
+class Standalone {
 public:
-  TermDo();
-  ~TermDo();
+  Standalone();
+  ~Standalone();
   string loopDo();
   void run(string);
   void reset();
