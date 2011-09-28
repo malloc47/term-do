@@ -7,6 +7,8 @@ OBJECTS = $(SOURCES:.cpp=.o)
 
 all: $(EXEC)
 	cd lib ; make bootstrap ;  make launcher.so ; make dir.so
+	-ln -fs *.o daemon/
+	cd daemon ; make
 
 $(EXEC): $(OBJECTS)
 	$(CXX) $(LDFLAGS) $(OBJECTS) $(CCFLAGS) -o $@

@@ -7,7 +7,7 @@
 #include "query.h"
 #include "plugins.h"
 #include "view.h"
-#include "server.h"
+#include "term-do.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
