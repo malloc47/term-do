@@ -1,7 +1,7 @@
-EXEC = term-do 
+EXEC = standalone 
 CXX = g++
 CCFLAGS = -Wall -O3
-LDFLAGS = -ldl
+LDFLAGS = -ldl -lrt
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
