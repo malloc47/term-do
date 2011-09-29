@@ -4,15 +4,15 @@ list_t load_plugins;
 string library_path;
 
 Client::Client() {
-  view = new View("/-/");
   try {
     server_send = new message_queue(open_only,"term_do_send");
     server_get = new message_queue(open_only,"term_do_get");
   }
   catch(interprocess_exception &ex){
-    cout << "could not find daemon" << endl;
     cout << ex.what() << endl;
+    throw;
   }
+  view = new View("/-/");
   // view->refreshLine(server->getQuery(),server->getMatches(),server->getTokens());
 }
 
@@ -148,19 +148,28 @@ Options: \n\
   string command;
 
   if(console) {
-    Client term_logic;
-    do {
-      term_logic.reset();
-      command = term_logic.loopDo();
-      term_logic.run(command);
-    } while(!command.empty());
+    try {
+      Client term_logic;
+      do {
+	term_logic.reset();
+	command = term_logic.loopDo();
+	term_logic.run(command);
+      } while(!command.empty());
+    }
+    catch(exception& e) {
+      cout << "could not connect to daemon" << endl;
+    }
   }
   else {
+    try {
       Client term_logic;
       command = term_logic.loopDo();
       term_logic.run(command);
+    }
+    catch(exception& e) {
+      cout << "could not connect to daemon" << endl;
+    }
   }
-  
     // add command to bash history
     // system(("bash -c \"history -s " + command + "\"").c_str());
 }
