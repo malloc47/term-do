@@ -5,8 +5,8 @@ SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 all: $(OBJECTS)
-	cd lib ; make bootstrap ;  make launcher.so ; make dir.so
-	# -ln -fs *.o daemon/
+	-mkdir bin/
+	cd lib ; make launcher.so ; make dir.so
 	cd daemon ; make
 	cd standalone ; make
 
@@ -19,6 +19,7 @@ $(EXEC): $(OBJECTS)
 clean:
 	-rm -f $(EXEC) $(OBJECTS)
 	-rm *~
+	-rm bin/term-do
 	cd lib ; make clean
 	cd daemon ; make clean
 	cd standalone ; make clean

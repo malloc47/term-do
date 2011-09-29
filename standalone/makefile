@@ -1,5 +1,5 @@
 EXEC = standalone
-EXEC_OUT = term-do
+EXEC_OUT = ../bin/term-do
 CXX = g++
 CCFLAGS = -Wall -O3
 LDFLAGS = -ldl -lrt

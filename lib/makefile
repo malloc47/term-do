@@ -6,8 +6,11 @@ EXEC = $(SOURCES:.cpp=.so)
 
 all: $(EXEC)
 
-%.so: %.o
+%.so: %.o tst.o
 	$(CXX) $< tst.o $(CCFLAGS) -shared -Wl,-soname,$@ -o $@
+
+tst.o: ../tst.cpp ../tst.h
+	$(CXX) -c $(CCFLAGS) ../tst.cpp -o tst.o
 
 %.o: %.cpp
 	$(CXX) -c $(CCFLAGS) $< -o $@
@@ -15,6 +18,3 @@ all: $(EXEC)
 clean:
 	-rm -f $(EXEC) $(OBJECTS) tst.o
 	-rm *~
-
-bootstrap:
-	cd ../ ; $(CXX) -c $(CCFLAGS) tst.cpp -o lib/tst.o
