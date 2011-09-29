@@ -33,7 +33,7 @@ private:
   string getFromServer(string);
   class View *view;
   message_queue *server_send;
-  message_queue *server_get;
+  message_queue *server_receive;
 };
 
 #endif

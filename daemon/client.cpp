@@ -6,10 +6,9 @@ string library_path;
 Client::Client() {
   try {
     server_send = new message_queue(open_only,"term_do_send");
-    server_get = new message_queue(open_only,"term_do_get");
+    server_receive = new message_queue(open_only,"term_do_receive");
   }
   catch(interprocess_exception &ex){
-    cout << ex.what() << endl;
     throw;
   }
   view = new View("/-/");
@@ -19,66 +18,73 @@ Client::Client() {
 Client::~Client() {
   view->clearLine(); 
   delete server_send;
-  delete server_get;
+  delete server_receive;
   delete view;
 }
 
 int Client::handleChar(char c) {
   bool done = false;
-  string to_send;
+  string send = "";
 
   // standard character range
-  if( (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c=='/' || ( c > ' ' && c <= '~') )
-    to_send="%c:"+c;
+  if( (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c=='/' || ( c > ' ' && c <= '~') ) {
+    // really need to figure out why send="%c:"+c fails
+    send="%c:c";
+    send[3]=c;
+  }
   // C-s
   else if(c==19)
-    to_send="%f";
+    send="%f";
   // C-r
   else if(c==18)
-    to_send="%b";
+    send="%b";
   // tab
   else if(c==9)
-    to_send="%cvt";
+    send="%cvt";
   // space
   else if(c==' ') // (c==32)
-    to_send="%ct";
+    send="%ct";
   // enter
   else if(c==13) 
-    to_send="%cft";
+    send="%cft";
   // backspace
   else if(c==127)
     // if query out of characters to backspace
-    to_send="%bksp";
+    send="%bksp";
   // C-f
   else if(c==6)
-    to_send="%full";
+    send="%full";
 
-  if(!to_send.empty())
-    server_send->send(to_send.data(),to_send.size(),0);
+  // printf("\r\n%s\n",send.c_str());
+
+  if(!send.empty())
+    server_send->send(send.data(),send.size(),0);
   
   // C-c , C-d , C-g, or time to quit
   return (c==3 || c==4 || c==7 || done);
 }
 
 string Client::getFromServer(string to_send) {
-  size_t const max_size = 4096; // terminals longer than this are scary
+  if(to_send.empty()) return "";
+  size_t const max_size = 1024; // terminals longer than this are scary
   string toreceive;
   toreceive.resize(max_size);
   size_t msg_size;
   unsigned msg_priority;
   server_send->send(to_send.data(),to_send.size(),0);
-  server_get->receive(&toreceive[0], toreceive.size(), msg_size, msg_priority);
+  server_receive->receive(&toreceive[0], toreceive.size(), msg_size, msg_priority);
   toreceive.resize(msg_size);
   return toreceive;
 }
 
 string Client::loopDo() {
   int done=0;
-  while(!done) {
+  do {
+    string line = getFromServer("%p");
+    view->clearLine();
+    view->printLine(line.c_str());
     done = handleChar(view->getChar());
-    view->printLine(getFromServer("%p").c_str());
-  }
-
+  } while(!done);
   return getFromServer("%cmd");
 }
 
@@ -93,8 +99,6 @@ void Client::reset() {
   view->clearLine();
   view->printLine(getFromServer("%r").c_str());
 }
-
-#include "history.h"
 
 int main(int argc, char *argv[]) {
 
@@ -164,7 +168,7 @@ Options: \n\
     try {
       Client term_logic;
       command = term_logic.loopDo();
-      term_logic.run(command);
+      // term_logic.run(command);
     }
     catch(exception& e) {
       cout << "could not connect to daemon" << endl;

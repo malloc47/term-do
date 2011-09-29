@@ -2,6 +2,7 @@
 
 TermDo::TermDo() {
   plugins = new Plugins();
+  tokens = new Tokens();
   plugins->populate(tokens->getSearcher());
   query = new Query(tokens->getSearcher());
 }

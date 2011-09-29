@@ -17,11 +17,10 @@ public:
   ~View();
   void setPrompt(string);
   void refreshLine(string&,list_t&,list_t&);
-
+  static string formatList(list_t&,const string,const string,const string);
+  static string formatList(list_t&,const string,const string,const string,const unsigned int);
+  static list_t chopList(list_t,const string);
 private:
-  string formatList(list_t&,const string,const string,const string);
-  string formatList(list_t&,const string,const string,const string,const unsigned int);
-  list_t chopList(list_t,const string);
   string prompt;
 };
 
