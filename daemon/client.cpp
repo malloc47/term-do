@@ -38,6 +38,13 @@ int Client::handleChar(char c) {
   // C-r
   else if(c==18)
     send="%b";
+  // backspace
+  else if(c==127)
+    // if query out of characters to backspace
+    send="%bksp";
+  // C-f
+  else if(c==6)
+    send="%full";
   // tab
   else if(c==9)
     send="%cvt";
@@ -47,18 +54,15 @@ int Client::handleChar(char c) {
   // enter
   else if(c==13) 
     send="%cft";
-  // backspace
-  else if(c==127)
-    // if query out of characters to backspace
-    send="%bksp";
-  // C-f
-  else if(c==6)
-    send="%full";
 
   // printf("\r\n%s\n",send.c_str());
 
   if(!send.empty())
     server_send->send(send.data(),send.size(),0);
+
+  if(c==13) {
+    if(!getFromServer().compare("1")) done = true;
+  }
   
   // C-c , C-d , C-g, or time to quit
   return (c==3 || c==4 || c==7 || done);
@@ -77,12 +81,30 @@ string Client::getFromServer(string to_send) {
   return toreceive;
 }
 
+string Client::getFromServer() {
+  size_t const max_size = 1024; // terminals longer than this are scary
+  string toreceive;
+  toreceive.resize(max_size);
+  size_t msg_size;
+  unsigned msg_priority;
+  server_receive->receive(&toreceive[0], toreceive.size(), msg_size, msg_priority);
+  toreceive.resize(msg_size);
+  return toreceive;
+}
+
 string Client::loopDo() {
   int done=0;
   do {
-    string line = getFromServer("%p");
+    stringstream out;
+    out << view->getWidth(); 
+    string query = "%p:" + out.str();
+    string line1 = getFromServer(query);
+    string line2 = getFromServer();
     view->clearLine();
-    view->printLine(line.c_str());
+    view->printLine(line1.c_str());
+    view->pushCursor();
+    view->printLine(line2.c_str());
+    view->popCursor();
     done = handleChar(view->getChar());
   } while(!done);
   return getFromServer("%cmd");
@@ -168,7 +190,7 @@ Options: \n\
     try {
       Client term_logic;
       command = term_logic.loopDo();
-      // term_logic.run(command);
+      term_logic.run(command);
     }
     catch(exception& e) {
       cout << "could not connect to daemon" << endl;

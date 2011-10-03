@@ -34,36 +34,78 @@ void Server::pollClients() {
       termdo->rotateForward();
     else if(!query.compare("%b"))
       termdo->rotateBackward();
-    else if(!query.compare("%cvt"))
-      termdo->commitValidToken();
-    else if(!query.compare("%ct"))
-      termdo->commitToken();
-    else if(!query.compare("%cft"))
-      termdo->commitFinalToken();
     else if(!query.compare("%bksp"))
       termdo->removeChar();
     else if(!query.compare("%full"))
       termdo->fullList();
-    else if(!query.compare("%p"))
-      sendToClient(prompt());
     else if(!query.compare("%cmd"))
-      sendToClient("ls");
+      sendToClient(getCmd());
+    else if(!query.compare("%cvt")) {
+      // sendToClient(termdo->commitValidToken() ? "1" : "0");
+      termdo->commitValidToken();
+    }
+    else if(!query.compare("%ct")) {
+      // sendToClient(termdo->commitToken() ? "1" : "0");
+      termdo->commitToken();
+    }
+    else if(!query.compare("%cft")) {
+      sendToClient(termdo->commitFinalToken() ? "1" : "0");
+      // termdo->commitFinalToken();
+    }
+    else if(!query.substr(0,3).compare("%p:")) {
+      int term_width;
+      stringstream(query.substr(3)) >> term_width;
+      string p1 = prompt1(term_width);
+      string p2 = prompt2(term_width,p1.length());
+      // Send in 2 parts so the client can place the cursor properly
+      sendToClient(p1);
+      sendToClient(p2);
+    }
 
     cout << "Received: " << query << endl;
   }
 }
 
-string Server::prompt() {
+string Server::getCmd() {
+  string cmd = termdo->getCommand();
+  if(cmd.empty()) {
+    list_t list = termdo->getTokens();
+    string output ="";
+    FOR_l(i,list)
+      output = output + (i==0 || is_dir(list[i-1]) || is_opt(list[i-1]) ? "" : " ") + list.at(i);
+    return output;
+  }
+  else
+    return cmd;
+}
+
+string Server::prompt1(unsigned int width) {
   string query = termdo->getQuery();
   string output = View::formatList(termdo->getTokens(),"["," ","]") + " ";
-  unsigned int len = 100;
+  unsigned int len = width*2/3;
+  if(output.length() > len)
+    output = "[ ... " + output.substr(output.length()-len,len-1);
+  output = "/-/" + output + query;
+  return output;
+}
+
+string Server::prompt2(unsigned int width, unsigned int width2) {
+  list_t chopped = View::chopList(termdo->getMatches(), termdo->getQuery());
+  return View::formatList(chopped, "{"," | ","}", width - width2);
+}
+
+string Server::prompt(unsigned int width) {
+  string query = termdo->getQuery();
+  string output = View::formatList(termdo->getTokens(),"["," ","]") + " ";
+  unsigned int len = width*2/3;
   if(output.length() > len)
     output = "[ ... " + output.substr(output.length()-len,len-1);
   output = "/-/" + output + query;
   list_t chopped = View::chopList(termdo->getMatches(), query);
   string match_str = View::formatList(chopped,
 				"{"," | ","}",
-				100 - output.length());
+				width - output.length());
+  // output = output + match_str.substr(0,width-output.length());
   output = output + match_str;
   return output;
 }
@@ -93,4 +135,3 @@ int main(int argc, char *argv[]) {
   Server logic;
   logic.pollClients();
 }
-

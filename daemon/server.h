@@ -17,7 +17,10 @@ public:
 private:
   string getFromClient();
   void sendToClient(string);
-  string prompt();
+  string prompt(unsigned int);
+  string prompt1(unsigned int);
+  string prompt2(unsigned int,unsigned int);
+  string getCmd();
   message_queue *client_receive;
   message_queue *client_send;
   TermDo *termdo;

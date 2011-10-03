@@ -31,6 +31,7 @@ private:
   void cleanup();
   int handleChar(char);
   string getFromServer(string);
+  string getFromServer();
   class View *view;
   message_queue *server_send;
   message_queue *server_receive;
