@@ -72,8 +72,8 @@ string Standalone::loopDo() {
   if(cmd.empty()) {
     list_t list = server->getTokens();
     string output ="";
-      FOR_l(i,list)
-	output = output + (i==0 || is_dir(list[i-1]) ? "" : " ") + list.at(i);
+    FOR_l(i,list)
+	output = output + (i==0 || is_dir(list[i-1]) || is_opt(list[i-1]) ? "" : " ") + list.at(i);
     return output;
   }
   else

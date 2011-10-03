@@ -19,7 +19,7 @@ string View::formatList(list_t &list, const string d1, const string sep, const s
   if(list.size()==1 && list.front().size()==0) return output;
   FOR_l(i,list)
     if(output.length() + list.at(i).length() + sep.length()*2 +
-       d2.length()*2 + string("...").length() > length) {
+       d2.length()*2 + string("... ").length() > length) {
       output = output + sep + "... ";
       break;
     }
