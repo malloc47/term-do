@@ -134,3 +134,8 @@ void Plugins::update(list_t tokens) {
   FOR_l(i,plugins)
     plugins[i].obj->update(tokens);
 }
+
+void Plugins::setCWD(string& cwd) {
+  FOR_l(i,plugins)
+    plugins[i].obj->update(cwd);
+}

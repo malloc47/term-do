@@ -23,6 +23,7 @@ public:
   void rotateForward();
   void rotateBackward();
   void fullList();
+  void setCWD(string&);
   string& getQuery();
   string getCommand();
   list_t& getMatches();

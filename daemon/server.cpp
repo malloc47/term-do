@@ -5,15 +5,11 @@ string library_path;
 Server::Server() {
   // the message queue names are defined in terms of the client, so
   // they must be swapped here
-  cout << "Removing old message queues" << endl;
   message_queue::remove("term_do_receive");
   message_queue::remove("term_do_send");
-  cout << "Adding new message queues" << endl;
   client_send = new message_queue(create_only,"term_do_receive",128,1024);
   client_receive = new message_queue(create_only,"term_do_send",128,128);
-  cout << "Creating new logic instance" << endl;
   termdo = new TermDo();
-  cout << "Done with constructor" << endl;
 }
 
 Server::~Server() {
@@ -34,6 +30,8 @@ void Server::pollClients() {
       termdo->rotateForward();
     else if(!query.compare("%b"))
       termdo->rotateBackward();
+    else if(!query.compare("%r"))
+      termdo->reset();
     else if(!query.compare("%bksp"))
       termdo->removeChar();
     else if(!query.compare("%full"))
@@ -52,6 +50,13 @@ void Server::pollClients() {
       sendToClient(termdo->commitFinalToken() ? "1" : "0");
       // termdo->commitFinalToken();
     }
+    // start
+    else if(!query.substr(0,3).compare("%s:")) {
+      termdo->reset();
+      string tail = query.substr(3);
+      termdo->setCWD(tail);
+    }
+    // prompt
     else if(!query.substr(0,3).compare("%p:")) {
       int term_width;
       stringstream(query.substr(3)) >> term_width;
@@ -61,8 +66,6 @@ void Server::pollClients() {
       sendToClient(p1);
       sendToClient(p2);
     }
-
-    cout << "Received: " << query << endl;
   }
 }
 
@@ -124,7 +127,6 @@ string Server::getFromClient() {
   size_t msg_size;
   unsigned int msg_priority;
   client_receive->receive(&to_receive[0], max_size, msg_size, msg_priority);
-  cout << "Done with query" << endl;
   to_receive.resize(msg_size);
   // return string(buffer);
   return to_receive;

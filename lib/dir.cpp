@@ -26,6 +26,7 @@ public:
   }
   string name() {return "dir";}
   void update(list_t new_tokens) {tokens = new_tokens;}
+  void update(string new_wd) {PWD = new_wd + "/";}
   bool match() {
     if(tokens.empty()) return false;
     return is_dir(tokens.back());
@@ -38,6 +39,7 @@ public:
       // look at the last token to see if we're completing a directory
       // (if not, just show pwd)
       if(!is_dir(tokens[tokens.size()-1])) return base_list();
+
       string listing="";
     
       // * walk *backwards* through the list to find the "first"
@@ -54,16 +56,23 @@ public:
 	if(!is_dir(tokens[start-1]))
 	  break;
 
+      if(!tokens[start].compare("~/"))
+	listing = HOME;
+      else if(tokens[start][0] == '/')
+	listing = "";
+      else
+	listing = PWD;
+
       // now walk from the starting directory token (e.g. second/) to
       // the latest token, concatenating the directories
       for(unsigned int i=start;i<tokens.size();i++)
-	listing = listing + (tokens[i].compare("~/") ? tokens[i] : HOME);
+	listing = listing + (tokens[i].compare("~/") ? tokens[i] : "");
 
       // get both a directory and file listing
       list_t dir = ls_d(listing);
       // it's not remotely legitimate to blanketly assume that ./ is
       // going to be used solely for exec-able scripts...
-      list_t files = (!tokens[start].compare("./")) ? ls_fe(listing) : ls_f(listing);
+      list_t files = (!tokens[start].compare("./")) && start == tokens.size()-1 ? ls_fe(listing) : ls_f(listing);
       // concatenate the two listings
       CONCAT2_l(dir,files,output);
       return output;

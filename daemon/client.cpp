@@ -11,11 +11,16 @@ Client::Client() {
   catch(interprocess_exception &ex){
     throw;
   }
+  string send = "%s:"+string(getenv("PWD"));
+  server_send->send(send.data(),send.size(),0);
+
   view = new View("/-/");
   // view->refreshLine(server->getQuery(),server->getMatches(),server->getTokens());
 }
 
 Client::~Client() {
+  string send = "%r";
+  server_send->send(send.data(),send.size(),0);
   view->clearLine(); 
   delete server_send;
   delete server_receive;
@@ -68,6 +73,21 @@ int Client::handleChar(char c) {
   return (c==3 || c==4 || c==7 || done);
 }
 
+string Client::getFromServer(string to_send, string to_send_after) {
+  if(to_send.empty()) return "";
+  if(to_send_after.empty()) return getFromServer(to_send);
+  size_t const max_size = 1024; // terminals longer than this are scary
+  string toreceive;
+  toreceive.resize(max_size);
+  size_t msg_size;
+  unsigned msg_priority;
+  server_send->send(to_send.data(),to_send.size(),0);
+  server_send->send(to_send_after.data(),to_send_after.size(),0);
+  server_receive->receive(&toreceive[0], toreceive.size(), msg_size, msg_priority);
+  toreceive.resize(msg_size);
+  return toreceive;
+}
+
 string Client::getFromServer(string to_send) {
   if(to_send.empty()) return "";
   size_t const max_size = 1024; // terminals longer than this are scary
@@ -118,8 +138,8 @@ void Client::run(string cmd) {
 }
 
 void Client::reset() {
-  view->clearLine();
-  view->printLine(getFromServer("%r").c_str());
+  string send = "%r";
+  server_send->send(send.data(),send.size(),0);
 }
 
 int main(int argc, char *argv[]) {

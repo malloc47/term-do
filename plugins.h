@@ -36,6 +36,7 @@ public:
   // void pop();
   // void push(string);
   void update(list_t);
+  void setCWD(string& cwd);
   bool loadLibrary(string);
   list_t findLibraries(string);
 private:

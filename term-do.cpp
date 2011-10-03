@@ -88,6 +88,7 @@ void TermDo::reset() {
   plugins->update(tokens->getTokens());
 }
 
+void TermDo::setCWD(string& cwd) {plugins->setCWD(cwd);}
 string& TermDo::getQuery() {return query->getQuery();}
 list_t& TermDo::getMatches() {return query->getMatches();}
 list_t& TermDo::getTokens() {return tokens->getTokens();}

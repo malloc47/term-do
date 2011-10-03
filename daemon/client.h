@@ -30,6 +30,7 @@ private:
   void init();
   void cleanup();
   int handleChar(char);
+  string getFromServer(string,string);
   string getFromServer(string);
   string getFromServer();
   class View *view;
