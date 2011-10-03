@@ -196,3 +196,5 @@ lsusb : _parse_help
 bash : _parse_help
 term-do : _parse_help
 /tar : %dir:
+_ssh_list : cat ~/.ssh/config | grep "Host " | awk '{print $2}'
+ssh : _ssh_list
