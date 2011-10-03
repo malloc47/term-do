@@ -1,8 +1,5 @@
 #include "client.h"
 
-list_t load_plugins;
-string library_path;
-
 Client::Client() {
   try {
     server_send = new message_queue(open_only,"term_do_send");
@@ -142,80 +139,80 @@ void Client::reset() {
   server_send->send(send.data(),send.size(),0);
 }
 
-int main(int argc, char *argv[]) {
+// int main(int argc, char *argv[]) {
 
-  int cmdargs;
-  bool console=false;
-  static struct option long_options[] = {
-    {"console", 1, 0, 'c'},
-    {"lib", 1, 0, 'l'},
-    {"help", 0, 0, 'h'},
-    {"version", 0, 0, 'v'},
-    {NULL, 0, NULL, 0}
-  };
-  int option_index = 0;
+//   int cmdargs;
+//   bool console=false;
+//   static struct option long_options[] = {
+//     {"console", 1, 0, 'c'},
+//     {"lib", 1, 0, 'l'},
+//     {"help", 0, 0, 'h'},
+//     {"version", 0, 0, 'v'},
+//     {NULL, 0, NULL, 0}
+//   };
+//   int option_index = 0;
 
-  library_path = "~/src/projects/term-do/lib";
+//   library_path = "~/src/projects/term-do/lib";
 
-  while ((cmdargs = getopt_long(argc, argv, "cl:hv",
-				long_options, &option_index)) != -1) {
-    switch (cmdargs) {
-    case 'c':
-      console=true;
-      break;
-    case 'l':
-      {
-	stringstream ss(optarg);
-	string item;
-	while(getline(ss,item,','))
-	  load_plugins.push_back(item);
-      }
-      break;
-    case 'h':
-      cout << "Usage: " << argv[0] <<  " [options] \n\
-Options: \n\
-  -c,--console                Use as console (don't exit after <Enter>) \n\
-  -l,--lib                    Specify the plugins to load (comma-delimited) \n\
-  -h,--help                   Display this information \n\
-  -v,--version                Display version information\n";
-      exit(0);
-      break;
-    case '?':
-      exit(0);
-      break;
-    }
-  }
+//   while ((cmdargs = getopt_long(argc, argv, "cl:hv",
+// 				long_options, &option_index)) != -1) {
+//     switch (cmdargs) {
+//     case 'c':
+//       console=true;
+//       break;
+//     case 'l':
+//       {
+// 	stringstream ss(optarg);
+// 	string item;
+// 	while(getline(ss,item,','))
+// 	  load_plugins.push_back(item);
+//       }
+//       break;
+//     case 'h':
+//       cout << "Usage: " << argv[0] <<  " [options] \n\
+// Options: \n\
+//   -c,--console                Use as console (don't exit after <Enter>) \n\
+//   -l,--lib                    Specify the plugins to load (comma-delimited) \n\
+//   -h,--help                   Display this information \n\
+//   -v,--version                Display version information\n";
+//       exit(0);
+//       break;
+//     case '?':
+//       exit(0);
+//       break;
+//     }
+//   }
 
-  // if (optind < argc) {
-  //   while (optind < argc)
-  //     framenum = atoi(argv[optind++]);
-  // }
+//   // if (optind < argc) {
+//   //   while (optind < argc)
+//   //     framenum = atoi(argv[optind++]);
+//   // }
 
-  string command;
+//   string command;
 
-  if(console) {
-    try {
-      Client term_logic;
-      do {
-	term_logic.reset();
-	command = term_logic.loopDo();
-	term_logic.run(command);
-      } while(!command.empty());
-    }
-    catch(exception& e) {
-      cout << "could not connect to daemon" << endl;
-    }
-  }
-  else {
-    try {
-      Client term_logic;
-      command = term_logic.loopDo();
-      term_logic.run(command);
-    }
-    catch(exception& e) {
-      cout << "could not connect to daemon" << endl;
-    }
-  }
-    // add command to bash history
-    // system(("bash -c \"history -s " + command + "\"").c_str());
-}
+//   if(console) {
+//     try {
+//       Client term_logic;
+//       do {
+// 	term_logic.reset();
+// 	command = term_logic.loopDo();
+// 	term_logic.run(command);
+//       } while(!command.empty());
+//     }
+//     catch(exception& e) {
+//       cout << "could not connect to daemon" << endl;
+//     }
+//   }
+//   else {
+//     try {
+//       Client term_logic;
+//       command = term_logic.loopDo();
+//       term_logic.run(command);
+//     }
+//     catch(exception& e) {
+//       cout << "could not connect to daemon" << endl;
+//     }
+//   }
+//     // add command to bash history
+//     // system(("bash -c \"history -s " + command + "\"").c_str());
+// }

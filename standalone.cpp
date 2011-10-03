@@ -1,4 +1,6 @@
 #include "standalone.h"
+#include "client.h"
+#include "server.h"
 
 list_t load_plugins;
 string library_path;
@@ -95,11 +97,13 @@ void Standalone::reset() {
 #include "history.h"
 
 int main(int argc, char *argv[]) {
-
+  int mode=0;
   int cmdargs;
   bool console=false;
   static struct option long_options[] = {
-    {"console", 1, 0, 'c'},
+    {"daemon", 1, 0, 'd'},
+    {"client", 1, 0, 'c'},
+    {"console", 1, 0, 'r'},
     {"lib", 1, 0, 'l'},
     {"help", 0, 0, 'h'},
     {"version", 0, 0, 'v'},
@@ -109,10 +113,16 @@ int main(int argc, char *argv[]) {
 
   library_path = "~/src/projects/term-do/lib";
 
-  while ((cmdargs = getopt_long(argc, argv, "cl:hv",
+  while ((cmdargs = getopt_long(argc, argv, "cdrl:hv",
 				long_options, &option_index)) != -1) {
     switch (cmdargs) {
+    case 'd':
+      mode = MODE_DAEMON;
+      break;
     case 'c':
+      mode = MODE_CLIENT;
+      break;
+    case 'r':
       console=true;
       break;
     case 'l':
@@ -126,7 +136,9 @@ int main(int argc, char *argv[]) {
     case 'h':
       cout << "Usage: " << argv[0] <<  " [options] \n\
 Options: \n\
-  -c,--console                Use as console (don't exit after <Enter>) \n\
+  -r,--console                Use as console (don't exit after <Enter>) \n\
+  -d,--daemon                 Launch daemon \n\
+  -c,--client                 Connect to daemon \n\
   -l,--lib                    Specify the plugins to load (comma-delimited) \n\
   -h,--help                   Display this information \n\
   -v,--version                Display version information\n";
@@ -145,20 +157,34 @@ Options: \n\
 
   string command;
 
-  if(console) {
-    Standalone term_logic;
+  Frontend *term_do;
+
+  switch (mode) {
+  case MODE_STANDALONE:
+    term_do = new Standalone();
+    break;
+  case MODE_CLIENT:
+    term_do = new Client();
+    break;
+  case MODE_DAEMON:
+    cout << "Launching term-do daemon..." << endl;
+    term_do = new Server();
+    break;
+  }
+
+  if(console && mode != MODE_DAEMON) {
     do {
-      term_logic.reset();
-      command = term_logic.loopDo();
-      term_logic.run(command);
+      term_do->reset();
+      command = term_do->loopDo();
+      term_do->run(command);
     } while(!command.empty());
   }
   else {
-      Standalone term_logic;
-      command = term_logic.loopDo();
-      term_logic.run(command);
+    command = term_do->loopDo();
+    term_do->run(command);
   }
   
+  delete term_do;
     // add command to bash history
     // system(("bash -c \"history -s " + command + "\"").c_str());
 }

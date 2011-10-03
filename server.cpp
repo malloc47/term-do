@@ -1,7 +1,5 @@
 #include "server.h"
 
-string library_path;
-
 Server::Server() {
   // the message queue names are defined in terms of the client, so
   // they must be swapped here
@@ -20,7 +18,7 @@ Server::~Server() {
   delete termdo;
 }
 
-void Server::pollClients() {
+string Server::loopDo() {
   string query, response;
   while(true) {
     query=getFromClient();
@@ -67,6 +65,7 @@ void Server::pollClients() {
       sendToClient(p2);
     }
   }
+  return "";
 }
 
 string Server::getCmd() {
@@ -132,8 +131,11 @@ string Server::getFromClient() {
   return to_receive;
 }
 
-int main(int argc, char *argv[]) {
-  library_path = "~/src/projects/term-do/lib";
-  Server logic;
-  logic.pollClients();
-}
+void Server::reset() {}
+void Server::run(string cmd) {}
+
+// int main(int argc, char *argv[]) {
+//   library_path = "~/src/projects/term-do/lib";
+//   Server logic;
+//   logic.pollClients();
+// }

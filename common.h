@@ -14,6 +14,13 @@ typedef vector<string> *list_p;
 #define FORB_l(i,v) for(int (i)=(v).size()-1;(i)>=0;(i)--)
 #define SEARCHER_t TST
 
+#define MODE_STANDALONE 0
+#define MODE_CLIENT 1
+#define MODE_DAEMON 2
+
+extern list_t load_plugins;
+extern string library_path;
+
 inline bool is_dir(string input) {
   if(input.empty()) return false;
   return input[input.size()-1]=='/';
