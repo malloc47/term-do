@@ -101,9 +101,9 @@ int main(int argc, char *argv[]) {
   int cmdargs;
   bool console=false;
   static struct option long_options[] = {
-    {"daemon", 1, 0, 'd'},
-    {"client", 1, 0, 'c'},
-    {"console", 1, 0, 'r'},
+    {"daemon", 0, 0, 'd'},
+    {"client", 0, 0, 'c'},
+    {"console", 0, 0, 'r'},
     {"lib", 1, 0, 'l'},
     {"help", 0, 0, 'h'},
     {"version", 0, 0, 'v'},
