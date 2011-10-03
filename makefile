@@ -18,5 +18,3 @@ clean:
 	-rm -f $(EXEC) $(OBJECTS)
 	-rm *~
 	cd lib ; make clean
-	# cd daemon ; make clean
-	# cd standalone ; make clean
