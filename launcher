@@ -195,6 +195,8 @@ vim : _parse_h
 lsusb : _parse_help
 bash : _parse_help
 term-do : _parse_help
+ls : _parse_help %dir
+gunzip : _parse_help %dir:.mp3,.mpg,.ogg,.wav,.mid,.flac,.mka,.ape
 /tar : %dir:
 _ssh_list : cat ~/.ssh/config | grep "Host " | awk '{print $2}'
 ssh : _ssh_list
