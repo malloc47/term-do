@@ -4,10 +4,15 @@
 
 #include <syslog.h>
 #include <signal.h>
+#include <unistd.h>
 #include <sys/file.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+
+Frontend *term_do;
 
 void handler(int sig) {
+  delete term_do;
   openlog("term-do",LOG_PID,LOG_DAEMON);
   syslog(LOG_INFO, "term-do daemon stopped");
   closelog();
@@ -21,7 +26,15 @@ int main(int argc, char *argv[]) {
   bool console=false;
   bool locked=false;
 
-  string lockfile=string(getenv("HOME"))+"/.term-do.d/term-do.pid";
+  string lockfile;
+
+  if(getuid()) {
+    mkdir((string(getenv("HOME"))+"/.term-do.d").c_str(),S_IRWXU);
+    lockfile=string(getenv("HOME"))+"/.term-do.d/term-do.pid";
+  }
+  else {
+    lockfile="/var/run/term-do.pid";
+  }
 
   static struct option long_options[] = {
     {"daemon", 0, 0, 'd'},
@@ -66,12 +79,17 @@ int main(int argc, char *argv[]) {
     case 'h':
       cout << "Usage: " << argv[0] <<  " [options] \n\
 Options: \n\
-  -r,--console                Use as console (don't exit after <Enter>) \n\
-  -d,--daemon                 Launch daemon \n\
-  -c,--client                 Connect to daemon \n\
-  -l,--lib                    Specify the plugins to load (comma-delimited) \n\
-  -h,--help                   Display this information \n\
-  -v,--version                Display version information\n";
+  -r,--console      Use as console (don't exit after <Enter>) \n\
+  -d,--daemon       Launch in server mode and daemonize \n\
+  -c,--client       Connect to daemon (default if daemon exists) \n\
+  -s,--standalone   Launch as an independent application (default if no daemon) \n\
+  -l,--lib          Specify the plugins to load (comma-delimited) \n\
+  -h,--help         Display this information \n\
+  -v,--version      Display version information\n";
+      exit(EXIT_SUCCESS);
+      break;
+    case 'v':
+      cout << "Version information forthcoming\n";
       exit(EXIT_SUCCESS);
       break;
     case '?':
@@ -107,7 +125,7 @@ Options: \n\
 
   string command;
 
-  Frontend *term_do;
+  // Frontend *term_do;
 
   switch (mode) {
   case MODE_STANDALONE:
@@ -119,7 +137,6 @@ Options: \n\
   case MODE_DAEMON:
     cout << "Launching term-do daemon" << endl;
     term_do = new Server();
-    cout << "Daemon started" << endl;
     break;
   }
 
@@ -137,7 +154,6 @@ Options: \n\
     }
   }
   else {
-    cout << "Detaching now" << endl;
     pid_t pid, sid;
 
     pid = fork();
