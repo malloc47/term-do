@@ -20,6 +20,7 @@ using namespace std;
 class Launcher : public Plugin {
 public:
   Launcher() {
+    PWD = string(getenv("PWD"))+"/";
     dictionary = new TST();
     getExec(dictionary);
     readConfig("launcher");
@@ -30,6 +31,7 @@ public:
   string name() { return "launcher";}
 
   void update(list_t new_tokens) {tokens = new_tokens; dir_complete = "";}
+  void update(string new_wd) {PWD = new_wd + "/";}
 
   bool match() {
     FORB_l(i,tokens)
@@ -124,6 +126,7 @@ public:
   }
 
 private:
+  string PWD;
   TST *dictionary;
   list_t tokens;
   map<string, Completion*> completions;
