@@ -154,37 +154,37 @@ Options: \n\
     }
   }
   else {
-    pid_t pid, sid;
+    // pid_t pid, sid;
 
-    pid = fork();
-    if (pid < 0)
-      exit(EXIT_FAILURE);
-    if (pid > 0)
-      exit(EXIT_SUCCESS);
+    // pid = fork();
+    // if (pid < 0)
+    //   exit(EXIT_FAILURE);
+    // if (pid > 0)
+    //   exit(EXIT_SUCCESS);
 
-    umask(0);
+    // umask(0);
 
-    sid = setsid();
-    if (sid < 0)
-      exit(EXIT_FAILURE);
+    // sid = setsid();
+    // if (sid < 0)
+    //   exit(EXIT_FAILURE);
         
-    if ((chdir("/")) < 0)
-      exit(EXIT_FAILURE);
+    // if ((chdir("/")) < 0)
+    //   exit(EXIT_FAILURE);
         
-    close(STDIN_FILENO);
-    close(STDOUT_FILENO);
-    close(STDERR_FILENO);
+    // close(STDIN_FILENO);
+    // close(STDOUT_FILENO);
+    // close(STDERR_FILENO);
 
-    // handle simple TERM signal
-    struct sigaction new_action;
-    new_action.sa_handler = handler;
-    new_action.sa_flags = 0;
-    if(sigaction(SIGTERM,&new_action,NULL) == -1)
-      exit(EXIT_FAILURE);
+    // // handle simple TERM signal
+    // struct sigaction new_action;
+    // new_action.sa_handler = handler;
+    // new_action.sa_flags = 0;
+    // if(sigaction(SIGTERM,&new_action,NULL) == -1)
+    //   exit(EXIT_FAILURE);
 
-    openlog("term-do",LOG_PID,LOG_DAEMON);
-    syslog(LOG_INFO, "term-do daemon started");
-    closelog();
+    // openlog("term-do",LOG_PID,LOG_DAEMON);
+    // syslog(LOG_INFO, "term-do daemon started");
+    // closelog();
     
     term_do->loopDo();
         

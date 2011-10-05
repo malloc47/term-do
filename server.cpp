@@ -7,7 +7,8 @@ Server::Server() {
   message_queue::remove("term_do_send");
   client_send = new message_queue(create_only,"term_do_receive",128,1024);
   client_receive = new message_queue(create_only,"term_do_send",128,128);
-  termdo = new TermDo();
+  TermDo* termdo = new TermDo();
+  termdo_l.push_back(termdo);
 }
 
 Server::~Server() {
@@ -15,12 +16,47 @@ Server::~Server() {
   delete client_receive;
   message_queue::remove("term_do_receive");
   message_queue::remove("term_do_send");
-  delete termdo;
+  // delete termdo;
+  FOR_l(i,termdo_l) {
+    delete termdo_l[i];
+  }
 }
 
 string Server::loopDo() {
-  string query, response;
+  TermDo *termdo;
+  string pid_s, query, response;
+  int pid;
   while(true) {
+    pid_s=getFromClient();
+    stringstream(pid_s.substr(5)) >> pid;
+
+    // if the pid has already been assigned to a "slot"
+    if(pid_lookup.count(pid)) {
+      termdo = termdo_l[pid_lookup[pid]];
+    }
+    else {
+      int new_slot=-1;
+      // check for the first slot available
+      for(unsigned int i=0;i<termdo_l.size();i++)
+	if(!slot_lookup.count(i)) {
+	  cout << "New slot found" << endl;
+	  new_slot = i;
+	  break;
+	}
+      // if all slots are used
+      if(new_slot < 0) {
+	cout << "No slot found--new slot made" << endl;
+	termdo_l.push_back(new TermDo());
+	new_slot = termdo_l.size()-1;
+      }
+      // assign a slot
+      pid_lookup.insert(pair<int,int>(pid,new_slot));
+      slot_lookup.insert(pair<int,int>(new_slot,pid));
+      termdo=termdo_l[new_slot];
+    }
+
+    cout << pid_lookup.size() << endl;
+
     query=getFromClient();
     if(!query.substr(0,3).compare("%c:"))
       termdo->addChar(query[3]);
@@ -35,7 +71,7 @@ string Server::loopDo() {
     else if(!query.compare("%full"))
       termdo->fullList();
     else if(!query.compare("%cmd"))
-      sendToClient(getCmd());
+      sendToClient(getCmd(termdo));
     else if(!query.compare("%cvt")) {
       // sendToClient(termdo->commitValidToken() ? "1" : "0");
       termdo->commitValidToken();
@@ -54,12 +90,22 @@ string Server::loopDo() {
       string tail = query.substr(3);
       termdo->setCWD(tail);
     }
+    // terminate
+    else if(!query.compare("%die")) {
+      cout << "Removing slotted client" << endl;
+      int empty_slot = pid_lookup[pid];
+      pid_lookup.erase(pid);
+      slot_lookup.erase(empty_slot);
+      // TODO: garbage collect empty slots
+      // need better system than just a mapped index into a vector
+      // if we want to safely remove items from the vector without reindexing it
+    }
     // prompt
     else if(!query.substr(0,3).compare("%p:")) {
       int term_width;
       stringstream(query.substr(3)) >> term_width;
-      string p1 = prompt1(term_width);
-      string p2 = prompt2(term_width,p1.length());
+      string p1 = prompt1(termdo,term_width);
+      string p2 = prompt2(termdo,term_width,p1.length());
       // Send in 2 parts so the client can place the cursor properly
       sendToClient(p1);
       sendToClient(p2);
@@ -68,7 +114,7 @@ string Server::loopDo() {
   return "";
 }
 
-string Server::getCmd() {
+string Server::getCmd(TermDo* termdo) {
   string cmd = termdo->getCommand();
   if(cmd.empty()) {
     list_t list = termdo->getTokens();
@@ -81,7 +127,7 @@ string Server::getCmd() {
     return cmd;
 }
 
-string Server::prompt1(unsigned int width) {
+string Server::prompt1(TermDo* termdo,unsigned int width) {
   string query = termdo->getQuery();
   string output = View::formatList(termdo->getTokens(),"["," ","]") + " ";
   unsigned int len = width*2/3;
@@ -91,12 +137,12 @@ string Server::prompt1(unsigned int width) {
   return output;
 }
 
-string Server::prompt2(unsigned int width, unsigned int width2) {
+string Server::prompt2(TermDo* termdo,unsigned int width, unsigned int width2) {
   list_t chopped = View::chopList(termdo->getMatches(), termdo->getQuery());
   return View::formatList(chopped, "{"," | ","}", width - width2);
 }
 
-string Server::prompt(unsigned int width) {
+string Server::prompt(TermDo* termdo,unsigned int width) {
   string query = termdo->getQuery();
   string output = View::formatList(termdo->getTokens(),"["," ","]") + " ";
   unsigned int len = width*2/3;

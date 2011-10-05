@@ -8,16 +8,19 @@ Client::Client() {
   catch(interprocess_exception &ex){
     throw;
   }
-  string send = "%s:"+string(getenv("PWD"));
-  server_send->send(send.data(),send.size(),0);
+  // string send = "%s:"+string(getenv("PWD"));
+  // server_send->send(send.data(),send.size(),0);
+  sendToServer("%s:"+string(getenv("PWD")));
 
   view = new View("/-/");
   // view->refreshLine(server->getQuery(),server->getMatches(),server->getTokens());
 }
 
 Client::~Client() {
-  string send = "%r";
-  server_send->send(send.data(),send.size(),0);
+  sendToServer("%r");
+  sendToServer("%die");
+  // string send = "%r";
+  // server_send->send(send.data(),send.size(),0);
   view->clearLine(); 
   delete server_send;
   delete server_receive;
@@ -60,7 +63,8 @@ int Client::handleChar(char c) {
   // printf("\r\n%s\n",send.c_str());
 
   if(!send.empty())
-    server_send->send(send.data(),send.size(),0);
+    sendToServer(send);
+    // server_send->send(send.data(),send.size(),0);
 
   if(c==13) {
     if(!getFromServer().compare("1")) done = true;
@@ -68,6 +72,14 @@ int Client::handleChar(char c) {
   
   // C-c , C-d , C-g, or time to quit
   return (c==3 || c==4 || c==7 || done);
+}
+
+void Client::sendToServer(string to_send) {
+  stringstream out;
+  out << getpid(); 
+  string pre_send = "%pid:"+out.str();
+  server_send->send(pre_send.data(),pre_send.size(),0);
+  server_send->send(to_send.data(),to_send.size(),0);
 }
 
 string Client::getFromServer(string to_send, string to_send_after) {
@@ -78,8 +90,10 @@ string Client::getFromServer(string to_send, string to_send_after) {
   toreceive.resize(max_size);
   size_t msg_size;
   unsigned msg_priority;
-  server_send->send(to_send.data(),to_send.size(),0);
-  server_send->send(to_send_after.data(),to_send_after.size(),0);
+  sendToServer(to_send);
+  sendToServer(to_send_after);
+  // server_send->send(to_send.data(),to_send.size(),0);
+  // server_send->send(to_send_after.data(),to_send_after.size(),0);
   server_receive->receive(&toreceive[0], toreceive.size(), msg_size, msg_priority);
   toreceive.resize(msg_size);
   return toreceive;
@@ -92,7 +106,8 @@ string Client::getFromServer(string to_send) {
   toreceive.resize(max_size);
   size_t msg_size;
   unsigned msg_priority;
-  server_send->send(to_send.data(),to_send.size(),0);
+  sendToServer(to_send);
+  // server_send->send(to_send.data(),to_send.size(),0);
   server_receive->receive(&toreceive[0], toreceive.size(), msg_size, msg_priority);
   toreceive.resize(msg_size);
   return toreceive;
@@ -135,84 +150,7 @@ void Client::run(string cmd) {
 }
 
 void Client::reset() {
-  string send = "%r";
-  server_send->send(send.data(),send.size(),0);
+  sendToServer("%r");
+  // string send = "%r";
+  // server_send->send(send.data(),send.size(),0);
 }
-
-// int main(int argc, char *argv[]) {
-
-//   int cmdargs;
-//   bool console=false;
-//   static struct option long_options[] = {
-//     {"console", 1, 0, 'c'},
-//     {"lib", 1, 0, 'l'},
-//     {"help", 0, 0, 'h'},
-//     {"version", 0, 0, 'v'},
-//     {NULL, 0, NULL, 0}
-//   };
-//   int option_index = 0;
-
-//   library_path = "~/src/projects/term-do/lib";
-
-//   while ((cmdargs = getopt_long(argc, argv, "cl:hv",
-// 				long_options, &option_index)) != -1) {
-//     switch (cmdargs) {
-//     case 'c':
-//       console=true;
-//       break;
-//     case 'l':
-//       {
-// 	stringstream ss(optarg);
-// 	string item;
-// 	while(getline(ss,item,','))
-// 	  load_plugins.push_back(item);
-//       }
-//       break;
-//     case 'h':
-//       cout << "Usage: " << argv[0] <<  " [options] \n\
-// Options: \n\
-//   -c,--console                Use as console (don't exit after <Enter>) \n\
-//   -l,--lib                    Specify the plugins to load (comma-delimited) \n\
-//   -h,--help                   Display this information \n\
-//   -v,--version                Display version information\n";
-//       exit(0);
-//       break;
-//     case '?':
-//       exit(0);
-//       break;
-//     }
-//   }
-
-//   // if (optind < argc) {
-//   //   while (optind < argc)
-//   //     framenum = atoi(argv[optind++]);
-//   // }
-
-//   string command;
-
-//   if(console) {
-//     try {
-//       Client term_logic;
-//       do {
-// 	term_logic.reset();
-// 	command = term_logic.loopDo();
-// 	term_logic.run(command);
-//       } while(!command.empty());
-//     }
-//     catch(exception& e) {
-//       cout << "could not connect to daemon" << endl;
-//     }
-//   }
-//   else {
-//     try {
-//       Client term_logic;
-//       command = term_logic.loopDo();
-//       term_logic.run(command);
-//     }
-//     catch(exception& e) {
-//       cout << "could not connect to daemon" << endl;
-//     }
-//   }
-//     // add command to bash history
-//     // system(("bash -c \"history -s " + command + "\"").c_str());
-// }

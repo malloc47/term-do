@@ -20,13 +20,15 @@ public:
 private:
   string getFromClient();
   void sendToClient(string);
-  string prompt(unsigned int);
-  string prompt1(unsigned int);
-  string prompt2(unsigned int,unsigned int);
-  string getCmd();
+  string prompt(TermDo*,unsigned int);
+  string prompt1(TermDo*,unsigned int);
+  string prompt2(TermDo*,unsigned int,unsigned int);
+  string getCmd(TermDo*);
   message_queue *client_receive;
   message_queue *client_send;
-  TermDo *termdo;
+  map<int,int> pid_lookup; // should combine into bidirectional map
+  map<int,int> slot_lookup;
+  vector<TermDo*> termdo_l;
 };
 
 #endif

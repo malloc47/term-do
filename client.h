@@ -31,6 +31,7 @@ private:
   void init();
   void cleanup();
   int handleChar(char);
+  void sendToServer(string);
   string getFromServer(string,string);
   string getFromServer(string);
   string getFromServer();
