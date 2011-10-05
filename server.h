@@ -6,6 +6,7 @@
 #include "term-do.h"
 #include "frontend.h"
 #include "view.h"
+#include <stack>
 
 using namespace std;
 using namespace boost::interprocess;
@@ -26,9 +27,8 @@ private:
   string getCmd(TermDo*);
   message_queue *client_receive;
   message_queue *client_send;
-  map<int,int> pid_lookup; // should combine into bidirectional map
-  map<int,int> slot_lookup;
-  vector<TermDo*> termdo_l;
+  map<int,TermDo*> termdo_map;
+  stack<TermDo*> termdo_pool; // should float between 2X and 3X size of termdo_map
 };
 
 #endif

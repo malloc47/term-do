@@ -7,8 +7,9 @@ Server::Server() {
   message_queue::remove("term_do_send");
   client_send = new message_queue(create_only,"term_do_receive",128,1024);
   client_receive = new message_queue(create_only,"term_do_send",128,128);
-  TermDo* termdo = new TermDo();
-  termdo_l.push_back(termdo);
+  // seed the pool
+  for(unsigned int i=0;i<2;i++)
+    termdo_pool.push(new TermDo());
 }
 
 Server::~Server() {
@@ -17,9 +18,15 @@ Server::~Server() {
   message_queue::remove("term_do_receive");
   message_queue::remove("term_do_send");
   // delete termdo;
-  FOR_l(i,termdo_l) {
-    delete termdo_l[i];
+  while(!termdo_pool.empty()) {
+    delete termdo_pool.top();
+    termdo_pool.pop();
   }
+
+  for (map<int,TermDo*>::const_iterator it = termdo_map.begin(); 
+       it != termdo_map.end(); 
+       it++) 
+    delete it->second;
 }
 
 string Server::loopDo() {
@@ -31,31 +38,22 @@ string Server::loopDo() {
     stringstream(pid_s.substr(5)) >> pid;
 
     // if the pid has already been assigned to a "slot"
-    if(pid_lookup.count(pid)) {
-      termdo = termdo_l[pid_lookup[pid]];
+    if(termdo_map.count(pid)) {
+      termdo = termdo_map[pid];
     }
     else {
-      int new_slot=-1;
-      // check for the first slot available
-      for(unsigned int i=0;i<termdo_l.size();i++)
-	if(!slot_lookup.count(i)) {
-	  cout << "New slot found" << endl;
-	  new_slot = i;
-	  break;
-	}
-      // if all slots are used
-      if(new_slot < 0) {
-	cout << "No slot found--new slot made" << endl;
-	termdo_l.push_back(new TermDo());
-	new_slot = termdo_l.size()-1;
-      }
-      // assign a slot
-      pid_lookup.insert(pair<int,int>(pid,new_slot));
-      slot_lookup.insert(pair<int,int>(new_slot,pid));
-      termdo=termdo_l[new_slot];
-    }
+      // if no more available in the pool
+      if(termdo_pool.empty())
+	// double total number of available
+	// use size()+2 because we know we're going to be adding one below
+	for(unsigned int i=0;i<termdo_map.size()+2;i++)
+	  termdo_pool.push(new TermDo());
 
-    cout << pid_lookup.size() << endl;
+      // grap the first available form the pool
+      termdo=termdo_pool.top();
+      termdo_map.insert(pair<int,TermDo*>(pid,termdo));
+      termdo_pool.pop();
+    }
 
     query=getFromClient();
     if(!query.substr(0,3).compare("%c:"))
@@ -93,12 +91,16 @@ string Server::loopDo() {
     // terminate
     else if(!query.compare("%die")) {
       cout << "Removing slotted client" << endl;
-      int empty_slot = pid_lookup[pid];
-      pid_lookup.erase(pid);
-      slot_lookup.erase(empty_slot);
-      // TODO: garbage collect empty slots
-      // need better system than just a mapped index into a vector
-      // if we want to safely remove items from the vector without reindexing it
+      // erase client entry
+      termdo_map.erase(pid);
+      // add old allocated "slot" back into the pool
+      termdo_pool.push(termdo);
+      // garbage-collect if there are too many unused elements in the pool
+      // (always keep 2)
+      while(termdo_pool.size() > 3*termdo_map.size()+2) {
+	delete termdo_pool.top();
+	termdo_pool.pop();
+      }
     }
     // prompt
     else if(!query.substr(0,3).compare("%p:")) {
@@ -110,7 +112,9 @@ string Server::loopDo() {
       sendToClient(p1);
       sendToClient(p2);
     }
+  cout << termdo_map.size() << ":" << termdo_pool.size() << endl;
   }
+
   return "";
 }
 
