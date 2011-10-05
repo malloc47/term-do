@@ -1,3 +1,5 @@
+#include "config.h"
+#ifdef DAEMON
 #ifndef SERVER_H_
 #define SERVER_H_
 
@@ -7,6 +9,8 @@
 #include "frontend.h"
 #include "view.h"
 #include <stack>
+
+#define PRELOAD 3
 
 using namespace std;
 using namespace boost::interprocess;
@@ -31,4 +35,5 @@ private:
   stack<TermDo*> termdo_pool; // should float between 2X and 3X size of termdo_map
 };
 
+#endif
 #endif

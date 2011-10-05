@@ -1,14 +1,14 @@
 #include "plugins.h"
 
 Plugins::Plugins() {
-  list_t libraries = findLibraries("./lib");
+  list_t libraries = findLibraries(library_path);
   FOR_l(i,libraries)
-      loadLibrary("./lib/" + libraries[i]);
+      loadLibrary(library_path+"/" + libraries[i]);
 }
 
 Plugins::Plugins(list_t &libraries) {
   FOR_l(i,libraries)
-      loadLibrary("./lib/" + libraries[i]+".so");
+      loadLibrary(library_path+"/" + libraries[i]+".so");
 }
 
 Plugins::~Plugins() {

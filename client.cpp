@@ -1,4 +1,5 @@
 #include "client.h"
+#ifdef DAEMON
 
 Client::Client() {
   try {
@@ -154,3 +155,4 @@ void Client::reset() {
   // string send = "%r";
   // server_send->send(send.data(),send.size(),0);
 }
+#endif

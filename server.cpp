@@ -1,4 +1,5 @@
 #include "server.h"
+#ifdef DAEMON
 
 Server::Server() {
   // the message queue names are defined in terms of the client, so
@@ -8,8 +9,8 @@ Server::Server() {
   client_send = new message_queue(create_only,"term_do_receive",128,1024);
   client_receive = new message_queue(create_only,"term_do_send",128,128);
   // seed the pool
-  for(unsigned int i=0;i<2;i++)
-    termdo_pool.push(new TermDo());
+  for(unsigned int i=0;i<PRELOAD;i++)
+    termdo_pool.push(new TermDo(load_plugins));
 }
 
 Server::~Server() {
@@ -33,9 +34,12 @@ string Server::loopDo() {
   TermDo *termdo;
   string pid_s, query, response;
   int pid;
+
   while(true) {
+
     pid_s=getFromClient();
     stringstream(pid_s.substr(5)) >> pid;
+    query=getFromClient();
 
     // if the pid has already been assigned to a "slot"
     if(termdo_map.count(pid)) {
@@ -47,15 +51,14 @@ string Server::loopDo() {
 	// double total number of available
 	// use size()+2 because we know we're going to be adding one below
 	for(unsigned int i=0;i<termdo_map.size()+2;i++)
-	  termdo_pool.push(new TermDo());
+	  termdo_pool.push(new TermDo(load_plugins));
 
-      // grap the first available form the pool
+      // grap the first available from the pool
       termdo=termdo_pool.top();
       termdo_map.insert(pair<int,TermDo*>(pid,termdo));
       termdo_pool.pop();
     }
 
-    query=getFromClient();
     if(!query.substr(0,3).compare("%c:"))
       termdo->addChar(query[3]);
     else if(!query.compare("%f"))
@@ -90,14 +93,12 @@ string Server::loopDo() {
     }
     // terminate
     else if(!query.compare("%die")) {
-      cout << "Removing slotted client" << endl;
       // erase client entry
       termdo_map.erase(pid);
       // add old allocated "slot" back into the pool
       termdo_pool.push(termdo);
       // garbage-collect if there are too many unused elements in the pool
-      // (always keep 2)
-      while(termdo_pool.size() > 3*termdo_map.size()+2) {
+      while(termdo_pool.size() > 3*termdo_map.size()+PRELOAD) {
 	delete termdo_pool.top();
 	termdo_pool.pop();
       }
@@ -112,7 +113,7 @@ string Server::loopDo() {
       sendToClient(p1);
       sendToClient(p2);
     }
-  cout << termdo_map.size() << ":" << termdo_pool.size() << endl;
+  // cout << termdo_map.size() << ":" << termdo_pool.size() << endl;
   }
 
   return "";
@@ -183,9 +184,4 @@ string Server::getFromClient() {
 
 void Server::reset() {}
 void Server::run(string cmd) {}
-
-// int main(int argc, char *argv[]) {
-//   library_path = "~/src/projects/term-do/lib";
-//   Server logic;
-//   logic.pollClients();
-// }
+#endif

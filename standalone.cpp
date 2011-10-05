@@ -1,8 +1,5 @@
 #include "standalone.h"
 
-list_t load_plugins;
-string library_path;
-
 Standalone::Standalone() {
   view = new View("/-/");
   server = new TermDo(load_plugins);

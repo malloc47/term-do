@@ -23,7 +23,8 @@ public:
     PWD = string(getenv("PWD"))+"/";
     dictionary = new TST();
     getExec(dictionary);
-    readConfig("launcher");
+    // hardcoded until I come up with a way to thread this info in
+    readConfig("/home/malloc47/src/projects/term-do/launcher");
   }
 
   ~Launcher() {delete dictionary;}

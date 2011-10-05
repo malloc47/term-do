@@ -1,3 +1,5 @@
+#include "config.h"
+#ifdef DAEMON
 #ifndef CLIENT_H_
 #define CLIENT_H_
 
@@ -40,4 +42,5 @@ private:
   message_queue *server_receive;
 };
 
+#endif
 #endif

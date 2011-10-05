@@ -1,6 +1,7 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
+#include "config.h"
 #include <vector>
 #include <string>
 
@@ -18,6 +19,7 @@ typedef vector<string> *list_p;
 #define MODE_CLIENT 1
 #define MODE_DAEMON 2
 
+// globals (just easier to do this than thread them throuh the objects)
 extern list_t load_plugins;
 extern string library_path;
 
