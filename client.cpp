@@ -78,8 +78,8 @@ int Client::handleChar(char c) {
 void Client::sendToServer(string to_send) {
   stringstream out;
   out << getpid(); 
-  string pre_send = "%pid:"+out.str();
-  server_send->send(pre_send.data(),pre_send.size(),0);
+  to_send = out.str()+":"+to_send;
+  // server_send->send(pre_send.data(),pre_send.size(),0);
   server_send->send(to_send.data(),to_send.size(),0);
 }
 
@@ -132,7 +132,10 @@ string Client::loopDo() {
     out << view->getWidth(); 
     string query = "%p:" + out.str();
     string line1 = getFromServer(query);
-    string line2 = getFromServer();
+    // split on newline
+    int split = line1.find_first_of('\n');
+    string line2 = line1.substr(split+1);
+    line1 = line1.substr(0,split);
     view->clearLine();
     view->printLine(line1.c_str());
     view->pushCursor();

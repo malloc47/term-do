@@ -36,10 +36,13 @@ string Server::loopDo() {
   int pid;
 
   while(true) {
-
-    pid_s=getFromClient();
-    stringstream(pid_s.substr(5)) >> pid;
     query=getFromClient();
+
+    // strip off PID and convert to int
+    int head=query.find_first_of(':');
+    stringstream(query.substr(0,head)) >> pid;
+    // remainder is command
+    query = query.substr(head+1);
 
     // if the pid has already been assigned to a "slot"
     if(termdo_map.count(pid)) {
@@ -107,13 +110,9 @@ string Server::loopDo() {
     else if(!query.substr(0,3).compare("%p:")) {
       int term_width;
       stringstream(query.substr(3)) >> term_width;
-      string p1 = prompt1(termdo,term_width);
-      string p2 = prompt2(termdo,term_width,p1.length());
-      // Send in 2 parts so the client can place the cursor properly
-      sendToClient(p1);
-      sendToClient(p2);
+      string p = prompt(termdo,term_width);
+      sendToClient(p);
     }
-  // cout << termdo_map.size() << ":" << termdo_pool.size() << endl;
   }
 
   return "";
@@ -153,7 +152,8 @@ string Server::prompt(TermDo* termdo,unsigned int width) {
   unsigned int len = width*2/3;
   if(output.length() > len)
     output = "[ ... " + output.substr(output.length()-len,len-1);
-  output = "/-/" + output + query;
+  // client should split on newline
+  output = "/-/" + output + query + "\n";
   list_t chopped = View::chopList(termdo->getMatches(), query);
   string match_str = View::formatList(chopped,
 				"{"," | ","}",
