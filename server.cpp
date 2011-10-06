@@ -76,6 +76,8 @@ string Server::loopDo() {
       termdo->fullList();
     else if(!query.compare("%cmd"))
       sendToClient(getCmd(termdo));
+    else if(!query.compare("%pwd"))
+      sendToClient(termdo->getCWD());
     else if(!query.compare("%cvt")) {
       // sendToClient(termdo->commitValidToken() ? "1" : "0");
       termdo->commitValidToken();
@@ -122,13 +124,34 @@ string Server::getCmd(TermDo* termdo) {
   string cmd = termdo->getCommand();
   if(cmd.empty()) {
     list_t list = termdo->getTokens();
-    string output ="";
     FOR_l(i,list)
-      output = output + (i==0 || is_dir(list[i-1]) || is_opt(list[i-1]) ? "" : " ") + list.at(i);
-    return output;
+      cmd = cmd + (i==0 || is_dir(list[i-1]) || is_opt(list[i-1]) ? "" : " ") + list.at(i);
   }
+  // behavior here is slightly different from running standalone:
+  // directory is changed in server, and no message is printed
+  if(!cmd.empty() && !cmd.substr(0,3).compare("cd ")) {
+    string new_path = cd(cmd.substr(3),termdo->getCWD());
+    termdo->setCWD(new_path);
+    termdo->resetHard();
+  }
+  return cmd;
+}
+
+// highly hackish
+string Server::cd(string path,string old_path) {
+  for(unsigned int i=0;i<path.length();i++)
+    if(path[i]=='~') {
+      string head = path.substr(0,i);
+      string tail = path.substr(i+1);
+      path=head+string(getenv("HOME"))+tail;
+      break;
+    }
+  chdir(old_path.c_str());
+  char temp_path [PATH_MAX];
+  if(realpath(path.c_str(), temp_path)!=NULL)
+    return string(temp_path);
   else
-    return cmd;
+    return "";
 }
 
 string Server::prompt1(TermDo* termdo,unsigned int width) {

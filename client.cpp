@@ -143,6 +143,7 @@ string Client::loopDo() {
     view->popCursor();
     done = handleChar(view->getChar());
   } while(!done);
+  chdir(getFromServer("%pwd").c_str());
   return getFromServer("%cmd");
 }
 

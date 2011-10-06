@@ -24,11 +24,13 @@ public:
   void rotateBackward();
   void fullList();
   void setCWD(string&);
+  string getCWD();
   string& getQuery();
   string getCommand();
   list_t& getMatches();
   list_t& getTokens();
   void reset();
+  void resetHard();
 
 private:
   void addToken(string);

@@ -80,8 +80,30 @@ string Standalone::loopDo() {
 void Standalone::run(string cmd) {
   view->clearLine();
   delete view;
-  if(!cmd.empty()) system(cmd.c_str());
+
+  if(!cmd.empty()) 
+    if(!cmd.substr(0,3).compare("cd ")) {
+      string new_path = cd(cmd.substr(3));
+      server->setCWD(new_path);
+      cout << "\rcd " << new_path << "\n";
+    }
+    else
+      system(cmd.c_str());
   view = new View("/-/");
+}
+
+string Standalone::cd(string path) {
+  // going to assume we do not have more than one ~
+  for(unsigned int i=0;i<path.length();i++)
+    if(path[i]=='~') {
+      string head = path.substr(0,i);
+      string tail = path.substr(i+1);
+      path=head+string(getenv("HOME"))+tail;
+      break;
+    }
+  chdir(path.c_str());
+  char temp_path [PATH_MAX];
+  return getcwd(temp_path, PATH_MAX) ? string(temp_path) : "";
 }
 
 void Standalone::reset() {

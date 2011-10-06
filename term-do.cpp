@@ -88,7 +88,17 @@ void TermDo::reset() {
   plugins->update(tokens->getTokens());
 }
 
+void TermDo::resetHard() {
+  reset();
+  Searcher *s = tokens->getSearcher();
+  delete s;
+  s = new SEARCHER_t();
+  plugins->populate(s);
+  query->reset(s);
+}
+
 void TermDo::setCWD(string& cwd) {plugins->setCWD(cwd);}
+string TermDo::getCWD() {return plugins->getCWD();}
 string& TermDo::getQuery() {return query->getQuery();}
 list_t& TermDo::getMatches() {return query->getMatches();}
 list_t& TermDo::getTokens() {return tokens->getTokens();}

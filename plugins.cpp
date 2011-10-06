@@ -4,11 +4,13 @@ Plugins::Plugins() {
   list_t libraries = findLibraries(library_path);
   FOR_l(i,libraries)
       loadLibrary(library_path+"/" + libraries[i]);
+  cwd = string(getenv("PWD"));
 }
 
 Plugins::Plugins(list_t &libraries) {
   FOR_l(i,libraries)
       loadLibrary(library_path+"/" + libraries[i]+".so");
+  cwd = string(getenv("PWD"));
 }
 
 Plugins::~Plugins() {
@@ -138,4 +140,9 @@ void Plugins::update(list_t tokens) {
 void Plugins::setCWD(string& cwd) {
   FOR_l(i,plugins)
     plugins[i].obj->update(cwd);
+  this->cwd = cwd;
+}
+
+string Plugins::getCWD() {
+  return this->cwd;
 }

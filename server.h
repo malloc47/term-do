@@ -25,6 +25,7 @@ public:
 private:
   string getFromClient();
   void sendToClient(string);
+  string cd(string,string);
   string prompt(TermDo*,unsigned int);
   string prompt1(TermDo*,unsigned int);
   string prompt2(TermDo*,unsigned int,unsigned int);

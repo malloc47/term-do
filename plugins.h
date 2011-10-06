@@ -37,11 +37,13 @@ public:
   // void push(string);
   void update(list_t);
   void setCWD(string& cwd);
+  string getCWD();
   bool loadLibrary(string);
   list_t findLibraries(string);
 private:
   // list_t tokens; // This should be moved to Matcher which should subsequently be name Query
   vector<plugin_t> plugins;
+  string cwd;
 };
 
 #endif

@@ -23,6 +23,7 @@ public:
   ~Standalone();
   string loopDo();
   void run(string);
+  string static cd(string);
   void reset();
 
 private:
