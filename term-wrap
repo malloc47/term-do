@@ -1,0 +1,3 @@
+#!/bin/bash
+term-do 1>&2
+cat ~/.term-do.d/pwd
