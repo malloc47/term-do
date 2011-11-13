@@ -7,11 +7,14 @@ Plugins::Plugins() {
   cwd = string(getenv("PWD"));
 }
 
-Plugins::Plugins(list_t &libraries) {
-  // todo: doesn't work with new changes to findLibraries (includes
-  // full path now)
+Plugins::Plugins(list_t &libs) {
+  list_t libraries = findLibraries(library_path);
   FOR_l(i,libraries)
-      loadLibrary(library_path+"/" + libraries[i]+".so");
+    FOR_l(j,libs)
+      if(libraries[i].find(libs[j])!=string::npos){
+	loadLibrary(libraries[i]);
+	break;
+      }
   cwd = string(getenv("PWD"));
 }
 

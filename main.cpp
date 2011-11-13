@@ -100,8 +100,13 @@ int main(int argc, char *argv[]) {
       {
 	stringstream ss(optarg);
 	string item;
-	while(getline(ss,item,','))
+	while(getline(ss,item,',')) {
+	  // trim beginning
+	  item.erase(item.begin(), find_if(item.begin(), item.end(), not1(ptr_fun<int, int>(isspace))));
+	  // and end
+	  item.erase(find_if(item.rbegin(), item.rend(), not1(ptr_fun<int, int>(isspace))).base(), item.end());
 	  load_plugins.push_back(item);
+	}
       }
       break;
     case 'h':
@@ -157,7 +162,11 @@ Options: \n\
 
   string command;
 
-  // Frontend *term_do;
+  ofstream pwdfile((config_folder+"/pwd").c_str());
+  if(pwdfile) {
+    pwdfile << string(getenv("PWD"));
+    pwdfile.close();
+  }
 
 #ifdef DAEMON
   switch (mode) {
