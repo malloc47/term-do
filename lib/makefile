@@ -2,11 +2,11 @@ CXX = g++
 CCFLAGS = -Wall -fPIC -O3 # -g -ggdb
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
-EXEC = $(SOURCES:.cpp=.so)
+EXEC = $(SOURCES:.cpp=.td)
 
 all: $(EXEC)
 
-%.so: %.o tst.o
+%.td: %.o tst.o
 	$(CXX) $< tst.o $(CCFLAGS) -shared -Wl,-soname,$@ -o $@
 
 tst.o: ../tst.cpp ../tst.h

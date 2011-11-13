@@ -6,7 +6,7 @@ SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 all: $(EXEC)
-	cd lib ; make launcher.so ; make dir.so
+	cd lib ; make launcher.td ; make dir.td
 
 $(EXEC): $(OBJECTS)
 	$(CXX) $(LDFLAGS) $(OBJECTS) $(CCFLAGS) -o $@
