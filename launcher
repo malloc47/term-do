@@ -200,3 +200,4 @@ gunzip : _parse_help %dir:.mp3,.mpg,.ogg,.wav,.mid,.flac,.mka,.ape
 /tar : %dir:
 _ssh_list : cat ~/.ssh/config | grep "Host " | awk '{print $2}'
 ssh : _ssh_list
+cd : %dir
