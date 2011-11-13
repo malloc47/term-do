@@ -18,6 +18,7 @@ Frontend *term_do;
 // externs in common.h
 list_t load_plugins;
 string library_path;
+string config_folder;
 
 #ifdef DAEMON
 void handler(int sig) {
@@ -38,12 +39,16 @@ int main(int argc, char *argv[]) {
   bool locked=false;
 #endif
 
+  config_folder = string(getenv("HOME"))+"/.term-do.d";
+
 #ifdef DAEMON
   string lockfile;
 
   if(getuid()) {
-    mkdir((string(getenv("HOME"))+"/.term-do.d").c_str(),S_IRWXU);
-    lockfile=string(getenv("HOME"))+"/.term-do.d/term-do.pid";
+    // mkdir((string(getenv("HOME"))+"/.term-do.d").c_str(),S_IRWXU);
+    // lockfile=string(getenv("HOME"))+"/.term-do.d/term-do.pid";
+    mkdir(config_folder.c_str(),S_IRWXU);
+    lockfile=config_folder+"/term-do.pid";
   }
   else {
     lockfile="/var/run/term-do.pid";
@@ -64,7 +69,7 @@ int main(int argc, char *argv[]) {
   };
   int option_index = 0;
 
-  library_path = string(getenv("HOME"))+"/.term-do.d/plugins";
+  library_path = config_folder+"/plugins"+":"+string(LIBRARY_PATH);
 
   while ((cmdargs = getopt_long(argc, argv, 
 #ifdef DAEMON

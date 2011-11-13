@@ -22,6 +22,7 @@ typedef vector<string> *list_p;
 // globals (just easier to do this than thread them throuh the objects)
 extern list_t load_plugins;
 extern string library_path;
+extern string config_folder;
 
 inline bool is_dir(string input) {
   if(input.empty()) return false;

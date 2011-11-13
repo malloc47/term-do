@@ -9,6 +9,8 @@
 #include "frontend.h"
 #include "view.h"
 #include <stack>
+#include <iostream>
+#include <fstream>
 
 #define PRELOAD 3
 

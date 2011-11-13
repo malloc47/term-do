@@ -3,11 +3,13 @@
 Plugins::Plugins() {
   list_t libraries = findLibraries(library_path);
   FOR_l(i,libraries)
-      loadLibrary(library_path+"/" + libraries[i]);
+      loadLibrary(libraries[i]);
   cwd = string(getenv("PWD"));
 }
 
 Plugins::Plugins(list_t &libraries) {
+  // todo: doesn't work with new changes to findLibraries (includes
+  // full path now)
   FOR_l(i,libraries)
       loadLibrary(library_path+"/" + libraries[i]+".so");
   cwd = string(getenv("PWD"));
@@ -20,21 +22,33 @@ Plugins::~Plugins() {
   }
 }
 
-// Directory listing of *.so files
+// Directory listing of plugins
 list_t Plugins::findLibraries(string dirname) {
   list_t output;
-  struct dirent *entry;
-  DIR* dirp = opendir(dirname.c_str());
-  if(dirp==NULL) {
-    cout << "\rInvalid plugin directory\n";
-    return output;
+  
+  // split out the pathnames delimited by :
+  stringstream tokenize(dirname);
+  string path;
+  list_t lib_paths;
+  while(std::getline(tokenize, path, ':')) 
+    lib_paths.push_back(path);
+
+  FOR_l(p,lib_paths) {
+    path = lib_paths[p];
+    if(path.empty()) continue;
+    struct dirent *entry;
+    DIR* dirp = opendir(path.c_str());
+    if(dirp==NULL) {
+      // cout << "\rInvalid plugin directory\n";
+      continue;
+    }
+    while ((entry = readdir(dirp)) != NULL) {
+      string name(entry->d_name);
+      if(name.size() > 3 && name.compare(name.size()-3,3,"."+string(PLUGIN_TYPE)) == 0)
+	output.push_back(path+"/"+name);
+    }
+    closedir(dirp);
   }
-  while ((entry = readdir(dirp)) != NULL) {
-    string name(entry->d_name);
-    if(name.size() > 3 && name.compare(name.size()-3,3,".so") == 0)
-      output.push_back(name);
-  }
-  closedir(dirp);
   return output;
 }
 

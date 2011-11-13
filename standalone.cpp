@@ -90,6 +90,7 @@ void Standalone::run(string cmd) {
     else
       system(cmd.c_str());
   view = new View("/-/");
+  Frontend::run(cmd);
 }
 
 string Standalone::cd(string path) {

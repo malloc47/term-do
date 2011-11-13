@@ -97,7 +97,14 @@ void TermDo::resetHard() {
   query->reset(s);
 }
 
-void TermDo::setCWD(string& cwd) {plugins->setCWD(cwd);}
+void TermDo::setCWD(string& cwd) {
+  plugins->setCWD(cwd);
+  ofstream pwdfile((config_folder+"/pwd").c_str());
+  if(pwdfile) {
+    pwdfile << cwd;
+    pwdfile.close();
+  }
+}
 string TermDo::getCWD() {return plugins->getCWD();}
 string& TermDo::getQuery() {return query->getQuery();}
 list_t& TermDo::getMatches() {return query->getMatches();}

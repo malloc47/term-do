@@ -2,6 +2,8 @@
 #define FRONTEND_H_
 
 #include "common.h"
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 

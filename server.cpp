@@ -206,5 +206,5 @@ string Server::getFromClient() {
 }
 
 void Server::reset() {}
-void Server::run(string cmd) {}
+void Server::run(string cmd) {Frontend::run(cmd);}
 #endif
