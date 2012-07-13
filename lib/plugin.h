@@ -5,7 +5,7 @@
 
 class Plugin {
 public:
-  // virtual ~Plugin() = 0;
+  virtual ~Plugin();
   // Plugin(string);
   virtual list_t list() = 0;
   virtual list_t list(string in) {return this->list();}
@@ -16,7 +16,5 @@ public:
   virtual string name() = 0;
   virtual string complete() {return "";}
 };
-
-// Plugin::~Plugin() {}
 
 #endif

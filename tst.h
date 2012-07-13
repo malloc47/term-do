@@ -29,7 +29,7 @@ private:
 class TST : public Searcher {
 public:
   TST();
-  ~TST();
+  virtual ~TST();
   virtual void insert(string s);
   virtual bool search(string s);
   virtual list_t searchp(string s);

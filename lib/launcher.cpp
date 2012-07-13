@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <functional>
 #include "plugin.h"
+#include "plug.h"
 #include "../tst.h"
 #include "../searcher.h"
 #include "../completion.hpp"

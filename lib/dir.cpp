@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include "plugin.h"
+#include "plug.h"
 
 #define CONCAT2_l(p,q,v)			\
   list_t (v);					\

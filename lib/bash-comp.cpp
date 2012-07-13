@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include "plugin.h"
+#include "plug.h"
 
 using namespace std;
 
