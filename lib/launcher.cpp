@@ -170,7 +170,7 @@ private:
 
   string replace(string s, string prev, string updated) {
     int pos = 0;
-    while((pos = s.find(prev, pos)) != string::npos) {
+    while((pos = s.find(prev, pos)) != (int)string::npos) {
       s.replace(pos, prev.length(), updated);
       pos += updated.length();
     }
