@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
   };
   int option_index = 0;
 
-  char *envpath = getenv("TERM_DO_PLUGINS");
+  char *envpath = getenv("TD_PLUGINS");
   library_path = config_folder+"/plugins"+":"+string(LIBRARY_PATH) + 
     ((envpath!=NULL) ?  ":"+string(envpath) : "") ;
 
