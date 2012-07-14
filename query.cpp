@@ -1,6 +1,6 @@
 #include "query.h"
 
-Query::Query(Searcher *s) : sorter("/home/malloc47/.bash_history") {
+Query::Query(Searcher *s) : sorter(string(getenv("HOME"))+"/.bash_history") {
   query="";
   searcher = s;
 }
