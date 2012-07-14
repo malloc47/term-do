@@ -1,4 +1,4 @@
-EXEC = term-do
+EXEC = term-core
 CXX = g++
 CCFLAGS = -Wall -O3
 LDFLAGS = -ldl -lrt -lpthread
