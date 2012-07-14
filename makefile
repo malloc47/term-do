@@ -18,3 +18,9 @@ clean:
 	-rm -f $(EXEC) $(OBJECTS)
 	-rm *~
 	cd lib ; make clean
+
+install:
+	-mkdir -p $(DESTDIR)/bin
+	cp $(EXEC) $(DESTDIR)/bin
+	-mkdir -p $(DESTDIR)/lib/term-do/plugins
+	cp lib/*.td $(DESTDIR)/lib/term-do/plugins
