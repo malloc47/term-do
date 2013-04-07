@@ -51,6 +51,10 @@ int Standalone::handleChar(char c) {
   // C-f
   else if(c==6)
     server->fullList();
+  // clear matches if we're trying to exit to prevent executing a
+  // partial command
+  else if(c==3 || c==4 || c==7)
+    server->reset();
   
   // C-c , C-d , C-g, or time to quit
   return (c==3 || c==4 || c==7 || done);

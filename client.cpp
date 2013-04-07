@@ -60,6 +60,8 @@ int Client::handleChar(char c) {
   // enter
   else if(c==13) 
     send="%cft";
+  else if(c==3 || c==4 || c==7)
+    send="%r";
 
   // printf("\r\n%s\n",send.c_str());
 
