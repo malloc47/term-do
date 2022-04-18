@@ -1,6 +1,6 @@
 EXEC = term-core
 CXX = g++
-CCFLAGS = -Wall -O3
+CCFLAGS = -Wall -O3 -Wno-error=format-security
 LDFLAGS = -ldl -lrt -lpthread
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
@@ -12,7 +12,7 @@ $(EXEC): $(OBJECTS)
 	$(CXX) $(LDFLAGS) $(OBJECTS) $(CCFLAGS) -o $@
 
 %.o: %.cpp
-	$(CXX) -c $(CC_FLAGS) $< -o $@
+	$(CXX) -c $(CCFLAGS) $< -o $@
 
 clean:
 	-rm -f $(EXEC) $(OBJECTS)
