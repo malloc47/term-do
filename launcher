@@ -191,7 +191,7 @@ mplayer: _mplayer_options %dir:.mpg,.mpeg,.MPG,.MPEG,.wmv,.wma,.WMV,.WMA,.avi,.A
 |-af : resample resample= channels channels= format format= volume volume= delay delay= pan pan= sub sub= surround surround=
 |-af-adv : force= list=
 |-noconfig : all gui system user
-vim : _parse_h
+vim : _parse_h %dir
 lsusb : _parse_help
 bash : _parse_help
 term-do : _parse_help
