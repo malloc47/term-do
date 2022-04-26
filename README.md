@@ -20,12 +20,11 @@ a extensible, terminal-based `ido-mode`-like prompt.
 
 `term-do` was largely duct-taped together as a means of
 procrastination in between doing other research tasks. I did, however,
-have a few things things in mind while working on it:
+have a few things in mind while working on it:
 
-1. Show completions as each character is typed.
+1. Show completions as each character is typed in an `ido-mode`-style
 
-2. Allow "rotating" through the completions with Ctrl+S and Ctrl+R,
-   `ido-mode`-style.
+2. Allow "rotating" through the completions with Ctrl+S and Ctrl+R.
 
 3. Support completions from a variety of (pluggable) sources.
 
@@ -33,7 +32,7 @@ have a few things things in mind while working on it:
    terminal; any delay would disincentivize use in favor of plain bash
    completion.
 
-5. Portable with a few dependencies as possible.
+5. Portable with as few dependencies as possible.
 
 ## Design
 
@@ -50,26 +49,49 @@ into the (overengineered) design:
   completions can be sorted in use-order.
 
 - Optional client/server mode for even faster startup time on older
-  hardware
+  hardware.
 
 - A persistent mode where the process does not exit after the
   completed command is run, essentially functioning as a lightweight
-  shell
+  shell.
+
+Because completions are implemented solely as plugins, the default
+plugins that are built and used are the `launcher` and `dir` plugins;
+other plugins are not included by default. The full list for
+reference:
+
+- `dir`: Yields directory/file completions based on the current
+  command.
+
+- `launcher`: Reads the
+  [launcher](https://github.com/malloc47/term-do/blob/master/launcher)
+  configuration file which defines commands + possible
+  completions. This configuration format became richer as time
+  progressed to be a crude half-reimplementation of bash
+  completion. Supports hardcoded completions as well as "parse the man
+  page for flags" and "run command that generates completions" modes,
+  including aliases with the `_` prefix.
+
+- `rnd`: adds random junk completions, for testing purposes.
+
+- `bash-comp`: experimentation to shell out to bash and scrape it for
+  bash completions directly; never worked quite as it needed to so I
+  abandoned it for the `launcher` plugin instead.
 
 ## Packaging
 
 Though I do not get as much use out of `term-do` these days, I've
 consistently packaged it for whatever OS I'm using so it's
 available. Notably, there is an AUR package and a NixOS derivation
-available. See [this commit][4] for an example of how to overlay the
-Nix derivation.
+included in the `pkgs` folder of this repo. See [this commit][4] for
+an example of how to overlay the Nix derivation.
 
 ## Usage
 
-I found that having to type the `term-do` command before using it was
-cumbersome enough to discourage using it. So instead, I've mapped it
-to the Emacs-esque `M-x` shortcut. This is done in `bash` using
-`.inputrc` with:
+I found that having to type the `term-do` command to run it was
+cumbersome enough to discourage using the tool. So instead, I've
+mapped the command to the Emacs-esque `M-x` shortcut. This is done in
+`bash` using `.inputrc` with:
 
     $if Bash
     "\M-x": "term-do\C-M"
@@ -108,7 +130,7 @@ There are better completion options these days, particularly in `zsh`,
 and `term-do`'s code has bit-rotted significantly. But I still haven't
 found a terminal completion that matches `ido-mode` closely enough for
 my tastes. Hopefully one day I can resurrect `term-do`, possibly in
-the form of a `zsh` plugin or other similar form to fill this niche.
+the form of a `zsh` plugin or similar to fill this niche.
 
 [1]: https://en.wikipedia.org/wiki/GNOME_Do
 [2]: https://www.emacswiki.org/emacs/InteractivelyDoThings
